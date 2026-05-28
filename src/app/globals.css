@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brandBlue: #02589F;
+  --color-brandRed: #D72731;
+}
+
+html {
+  background-color: #03070b;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #03070b; 
+  color: #ffffff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: #D72731;
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
