@@ -22,18 +22,13 @@ const staticRoutes: {
   changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
 }[] = [
   { path: "",            priority: 1.0,  changeFrequency: "weekly"  },  // homepage
-  { path: "/about",      priority: 0.8,  changeFrequency: "monthly" },
-  { path: "/services",   priority: 0.9,  changeFrequency: "monthly" },
-  { path: "/products",   priority: 0.9,  changeFrequency: "weekly"  },
-  { path: "/contact",    priority: 0.7,  changeFrequency: "yearly"  },
-  { path: "/projects",   priority: 0.8,  changeFrequency: "weekly"  },
+  { path: "/fundermax",      priority: 0.8,  changeFrequency: "monthly" },
+  { path: "/saint-gobain",   priority: 0.9,  changeFrequency: "monthly" },
+  { path: "/lg-hausys",   priority: 0.9,  changeFrequency: "weekly"  },
+  
 
   // Product category pages
-  { path: "/products/saint-gobain-glass",       priority: 0.85, changeFrequency: "monthly" },
-  { path: "/products/fundermax-cladding",       priority: 0.85, changeFrequency: "monthly" },
-  { path: "/products/lg-hausys",                priority: 0.85, changeFrequency: "monthly" },
-  { path: "/products/exterior-cladding",        priority: 0.8,  changeFrequency: "monthly" },
-  { path: "/products/glass-facades",            priority: 0.8,  changeFrequency: "monthly" },
+
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
