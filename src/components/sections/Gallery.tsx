@@ -17,12 +17,11 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ZoomIn,
   Eye,
   LayoutGrid,
   Film,
 } from "lucide-react";
-import ProjectModal from "../ui/ProjectModal";
+import { LD_ID, waLink } from "@/lib/site";
 
 // ─── Typography (unchanged) ───────────────────────────────────────────────────
 const syneFont = Syne({
@@ -51,7 +50,7 @@ type GalleryItem = {
   location: string;
 };
 
-// ─── Gallery Data (42 items: 18 Fundermax · 15 Saint-Gobain · 9 LG Hausys) ──
+// ─── Gallery Data (41 items: 18 Fundermax · 15 Saint-Gobain · 8 LG Hausys) ──
 // [title, subtitle, tag, span]
 const F_DATA: [string, string, string, Span][] = [
   ["Modern Residential Facade", "HPL Panel Excellence", "CLADDING", "wide"],
@@ -95,7 +94,6 @@ const S_DATA: [string, string, string, Span][] = [
 const L_DATA: [string, string, string, Span][] = [
   ["Ceiling Panel Feature", "Interior Excellence", "CEILING", "tall"],
   ["Wood-Look Interior", "Warmth & Rich Texture", "WOOD", "tall"],
-  ["Modern Living Panel", "Contemporary Design", "LIVING", "tall"],
   ["Textured Ceiling Design", "Sculptural Surface", "TEXTURE", "tall"],
   ["Lit Ceiling Panel", "Integrated Lighting", "LIGHTING", "tall"],
   ["Warm Gold Interior", "Luxury Ambience", "LUXURY", "tall"],
@@ -107,7 +105,6 @@ const L_DATA: [string, string, string, Span][] = [
 const LG_FILENAMES = [
   "/images/lg/lg1.jpeg",
   "/images/lg/lg2.jpeg",
-  "/images/lg/lg3%20(1).jpeg",
   "/images/lg/lg3.jpeg",
   "/images/lg/lg4.jpeg",
   "/images/lg/lg5.jpeg",
@@ -194,71 +191,12 @@ const CATEGORIES = [
 // ─── SEO: Schema.org JSON-LD ─────────────────────────────────────────────────
 const SCHEMA = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LocalBusiness",
-      "@id": "https://precisehomes.in/#business",
-      name: "Precise Homes",
-      alternateName: "Precise Home Care",
-      description:
-        "Kerala's premier authorized dealer for Saint-Gobain glass solutions, Fundermax exterior HPL cladding, and LG Hausys home interior panels. Expert supply and installation in Ernakulam, Kochi, and across Kerala.",
-      url: "https://precisehomes.in",
-      telephone: "+919895105012",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Building No: 42/3405, Civil Line Road, Padivattom",
-        addressLocality: "Kochi",
-        addressRegion: "Kerala",
-        postalCode: "682024",
-        addressCountry: "IN",
-      },
-      geo: { "@type": "GeoCoordinates", latitude: 10.0261, longitude: 76.3083 },
-      areaServed: ["Kerala", "Ernakulam", "Kochi", "Thrissur", "Calicut"],
-      priceRange: "₹₹₹",
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "Home Care Solutions",
-        itemListElement: [
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Saint-Gobain Glass Solutions Kerala",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Fundermax Exterior Cladding Ernakulam",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "LG Hausys Interior Panels Kerala",
-            },
-          },
-        ],
-      },
-      sameAs: [
-        "https://www.facebook.com/precisehomesindia",
-        "https://www.instagram.com/precisehomesindia/",
-        "https://www.youtube.com/@precisehomeautocare",
-      ],
-    },
-    {
-      "@type": "ImageGallery",
-      name: "Precise Homes Project Portfolio – Glass, Cladding & Interior Solutions Kerala",
-      description:
-        "Portfolio of 42 completed projects: Saint-Gobain glass installations, Fundermax HPL exterior cladding, and LG Hausys interior panels across Kerala.",
-      numberOfItems: 42,
-      keywords:
-        "Saint Gobain Kerala, Fundermax cladding Ernakulam, LG Hausys interior panels Kochi, glass solutions Kerala, HPL cladding Ernakulam, home improvement Kerala, exterior facade Kochi, tempered glass Kerala",
-      publisher: { "@id": "https://precisehomes.in/#business" },
-    },
-  ],
+  "@type": "ImageGallery",
+  name: "Precise Homes Project Portfolio – Glass, Cladding & Interior Solutions Kerala",
+  description:
+    "Portfolio of completed projects: Saint-Gobain glass and uPVC window installations, Fundermax HPL exterior cladding and LG Hausys interior panels across Kerala.",
+  numberOfItems: ALL_ITEMS.length,
+  publisher: { "@id": LD_ID.business },
 };
 
 // ─── Span → CSS classes ───────────────────────────────────────────────────────
@@ -643,11 +581,13 @@ function Lightbox({
   items,
   onClose,
   onNav,
+  onJump,
 }: {
   item: GalleryItem;
   items: GalleryItem[];
   onClose: () => void;
   onNav: (dir: 1 | -1) => void;
+  onJump: (it: GalleryItem) => void;
 }) {
   const idx = items.findIndex((i) => i.id === item.id);
   const filmRef = useRef<HTMLDivElement>(null);
@@ -807,9 +747,11 @@ function Lightbox({
 
             <div className="pt-6 mt-6 border-t border-white/10">
               <a
-                href="/contact"
+                href={waLink(`Hi Precise Homes! I'd like a project similar to "${item.title}" (${item.brand}).`)}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group flex items-center gap-4 w-full"
-                aria-label="Start a similar project with Precise Homes"
+                aria-label="Start a similar project with Precise Homes on WhatsApp"
               >
                 <span className="text-white/50 text-[9px] uppercase tracking-[0.3em] font-bold group-hover:text-white transition-colors">
                   Start a Similar Project
@@ -826,18 +768,15 @@ function Lightbox({
             ref={filmRef}
             className="flex gap-1.5 overflow-x-auto p-3 bg-black/30 border-t border-white/10"
             style={{ scrollbarWidth: "none" }}
-            role="listbox"
             aria-label="All projects in this category"
           >
-            {items.map((it, i) => (
+            {items.map((it) => (
               <button
                 key={it.id}
                 data-active={it.id === item.id}
-                aria-selected={it.id === item.id}
+                aria-current={it.id === item.id}
                 aria-label={`Go to ${it.title}`}
-                onClick={() => {
-                  /* handled by parent */
-                }}
+                onClick={() => onJump(it)}
                 className={`shrink-0 w-14 h-10 overflow-hidden transition-all duration-300 rounded-[1px] ${it.id === item.id ? "ring-[1.5px] ring-[#D72731] opacity-100" : "opacity-30 hover:opacity-60"}`}
               >
                 <img
@@ -905,7 +844,6 @@ function MarqueeTicker() {
 
 // ─── Main Gallery Section ─────────────────────────────────────────────────────
 export default function Gallery() {
-  const [modalOpen, setModalOpen] = useState(false);
   const [activeCat, setActiveCat] = useState("ALL");
   const [viewMode, setViewMode] = useState<"grid" | "film">("grid");
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
@@ -947,10 +885,6 @@ export default function Gallery() {
     [lightboxItem, filtered],
   );
 
-  // Change to grid when switching category
-  useEffect(() => {
-    setViewMode("grid");
-  }, [activeCat]);
 
   return (
     <section
@@ -1060,7 +994,7 @@ export default function Gallery() {
                 transition={{ duration: 1.2, delay: 0.52, ease: EASE }}
                 className="text-white/45 text-sm md:text-[15px] leading-[1.85] font-medium"
               >
-                As Ernakulam's authorized dealer for{" "}
+                As Ernakulam&apos;s authorized dealer for{" "}
                 <strong className="text-white/60 font-semibold">
                   Saint-Gobain glass solutions
                 </strong>
@@ -1099,7 +1033,10 @@ export default function Gallery() {
               return (
                 <button
                   key={cat.key}
-                  onClick={() => setActiveCat(cat.key)}
+                  onClick={() => {
+                    setActiveCat(cat.key);
+                    setViewMode("grid"); // switching category returns to the grid
+                  }}
                   aria-pressed={active}
                   aria-label={`Filter: ${cat.label} (${cat.count} projects)`}
                   className={`relative flex items-center gap-2 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full border transition-all duration-400 ${
@@ -1224,11 +1161,12 @@ export default function Gallery() {
           </div>
 
           <MagneticButton>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
+            <a
+              href={waLink("Hi Precise Homes! I saw your project portfolio and would like to start a project.")}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative overflow-hidden rounded-full bg-white/[0.06] border border-white/[0.12] backdrop-blur-xl pl-7 pr-2 py-2 flex items-center gap-5 transition-all duration-500 hover:bg-white/10 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-              aria-label="Start your project with Precise Homes"
+              aria-label="Start your project with Precise Homes on WhatsApp"
             >
               <span className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">
                 Start a Project
@@ -1236,11 +1174,10 @@ export default function Gallery() {
               <div className="w-10 h-10 rounded-full bg-[#D72731] flex items-center justify-center group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_24px_rgba(215,39,49,0.45)]">
                 <ArrowUpRight className="w-4 h-4 text-white" />
               </div>
-            </button>
+            </a>
           </MagneticButton>
         </div>
       </div>
-      <ProjectModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* ── Lightbox ── */}
       <AnimatePresence>
@@ -1250,6 +1187,7 @@ export default function Gallery() {
             items={filtered}
             onClose={closeLightbox}
             onNav={navLightbox}
+            onJump={setLightboxItem}
           />
         )}
       </AnimatePresence>

@@ -8,14 +8,18 @@
 html {
   background-color: #03070b;
   scroll-behavior: smooth;
+  /* keep #anchors clear of the fixed navbar */
+  scroll-padding-top: 88px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: #03070b; 
+  background-color: #03070b;
   color: #ffffff;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -25,4 +29,55 @@ body {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+/* Horizontal rails (films, filters) — hide scrollbars in every engine */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* WhatsApp button / sound button attention pulse */
+@keyframes wa-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  80%,
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+/* "Sound on" equaliser bars */
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+video {
+  /* never show the native download/cast overlay flash on iOS for background videos */
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

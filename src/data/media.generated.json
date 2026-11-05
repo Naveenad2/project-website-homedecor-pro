@@ -1,0 +1,162 @@
+{
+  "films": {
+    "kaloor-villa-kochi-aerial": {
+      "duration": 44.6,
+      "endCardAt": 39.45,
+      "filmBytes": 6750265,
+      "previewBytes": 411854
+    },
+    "kollam-window-splash-test": {
+      "duration": 64.5,
+      "endCardAt": 58.5,
+      "filmBytes": 17475456,
+      "previewBytes": 1089179
+    },
+    "kollam-fundermax-cladding": {
+      "duration": 53.0,
+      "endCardAt": 48.35,
+      "filmBytes": 13251619,
+      "previewBytes": 702727
+    },
+    "edappally-glass-handrail": {
+      "duration": 83.7,
+      "endCardAt": 78.46,
+      "filmBytes": 26451717,
+      "previewBytes": 818287
+    },
+    "kollam-homeowner-sliding-windows": {
+      "duration": 87.9,
+      "endCardAt": 81.75,
+      "filmBytes": 18450323,
+      "previewBytes": 466167
+    },
+    "kollam-glass-skylight-terrace": {
+      "duration": 91.5,
+      "endCardAt": 85.35,
+      "filmBytes": 25031388,
+      "previewBytes": 754018
+    },
+    "kollam-homeowner-review": {
+      "duration": 55.0,
+      "endCardAt": 49.0,
+      "filmBytes": 12286168,
+      "previewBytes": 554051
+    },
+    "kollam-saint-gobain-glass-quality": {
+      "duration": 94.3,
+      "endCardAt": 88.3,
+      "filmBytes": 20156738,
+      "previewBytes": 653004
+    },
+    "fort-kochi-architect-review": {
+      "duration": 79.6,
+      "endCardAt": 74.87,
+      "filmBytes": 15827082,
+      "previewBytes": 857061
+    },
+    "kaloor-villa-french-doors": {
+      "duration": 56.9,
+      "endCardAt": 51.5,
+      "filmBytes": 7619262,
+      "previewBytes": 426813
+    },
+    "kaloor-villa-tilt-turn-windows": {
+      "duration": 86.4,
+      "endCardAt": 81.15,
+      "filmBytes": 11031486,
+      "previewBytes": 295739
+    },
+    "kaloor-villa-homeowner-talk": {
+      "duration": 52.3,
+      "endCardAt": 47.15,
+      "filmBytes": 7143602,
+      "previewBytes": 439792
+    },
+    "kaloor-villa-garden-windows": {
+      "duration": 77.2,
+      "endCardAt": 71.95,
+      "filmBytes": 10709673,
+      "previewBytes": 486737
+    },
+    "kaloor-villa-owner-review": {
+      "duration": 81.7,
+      "endCardAt": 76.55,
+      "filmBytes": 14422061,
+      "previewBytes": 475764
+    },
+    "experience-centre-tour": {
+      "duration": 192.6,
+      "endCardAt": 186.87,
+      "filmBytes": 46187867,
+      "previewBytes": 671494
+    },
+    "saint-gobain-shingles-glass-railing": {
+      "duration": 218.3,
+      "endCardAt": null,
+      "filmBytes": 64460911,
+      "previewBytes": 857113
+    }
+  },
+  "catalogues": {
+    "iclad-facade-cladding-catalogue": {
+      "pages": 70,
+      "previewPages": 8,
+      "bytes": 17506055,
+      "aspect": 1.541
+    },
+    "dimore-aluminium-windows-doors": {
+      "pages": 25,
+      "previewPages": 8,
+      "bytes": 5968359,
+      "aspect": 0.7071
+    },
+    "vitrum-slimline-windows": {
+      "pages": 6,
+      "previewPages": 6,
+      "bytes": 1849054,
+      "aspect": 1.7778
+    },
+    "saint-gobain-automatic-doors": {
+      "pages": 10,
+      "previewPages": 8,
+      "bytes": 675744,
+      "aspect": 2.5862
+    },
+    "novelio-wall-coverings-brochure": {
+      "pages": 4,
+      "previewPages": 4,
+      "bytes": 1989219,
+      "aspect": 0.7071
+    },
+    "novelio-classic-catalogue": {
+      "pages": 48,
+      "previewPages": 8,
+      "bytes": 4884674,
+      "aspect": 0.7071
+    },
+    "novelio-nature-opposites-catalogue": {
+      "pages": 68,
+      "previewPages": 8,
+      "bytes": 9350220,
+      "aspect": 1.4143
+    },
+    "forms-surfaces-india-catalogue": {
+      "pages": 122,
+      "previewPages": 8,
+      "bytes": 10609474,
+      "aspect": 1.2925
+    },
+    "forms-surfaces-master-presentation": {
+      "pages": 120,
+      "previewPages": 8,
+      "bytes": 10582685,
+      "aspect": 1.7778
+    },
+    "fundermax-max-compact-exterior": {
+      "pages": 37,
+      "previewPages": 8,
+      "bytes": 2146253,
+      "aspect": 1.7778
+    }
+  }
+}

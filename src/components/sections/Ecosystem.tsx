@@ -1,20 +1,18 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { Montserrat, Inter } from "next/font/google";
 import {
   motion,
   useScroll,
   useTransform,
   useInView,
-  AnimatePresence,
 } from "framer-motion";
 import {
   ArrowUpRight,
   Plus,
   ShieldCheck,
   ExternalLink,
-  ChevronRight,
   Layers,
   Zap,
   Wind,
@@ -22,7 +20,7 @@ import {
   Square,
   Circle,
 } from "lucide-react";
-import ProjectModal from "../ui/ProjectModal";
+import { waLink } from "@/lib/site";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 const montserrat = Montserrat({
@@ -400,7 +398,6 @@ function ProcessStep({
 
 // ─── Main section ─────────────────────────────────────────────────────────────
 export default function Ecosystem() {
-  const [modalOpen, setModalOpen] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -489,7 +486,7 @@ export default function Ecosystem() {
                 className={`${inter.className} text-white/60 text-[14px] md:text-[15px] leading-[1.9] font-normal max-w-md`}
               >
                 As an authorized dealer of Saint Gobain, Fundermax, and LG
-                Hausys, we bring Kerala's finest selection of glass, cladding,
+                Hausys, we bring Kerala&apos;s finest selection of glass, cladding,
                 and surface materials — backed by expert design support and
                 statewide service.
               </p>
@@ -738,7 +735,7 @@ export default function Ecosystem() {
                   <p
                     className={`${inter.className} text-white/60 text-[14px] md:text-[15px] leading-[1.9] font-normal`}
                   >
-                    Book a free on-site consultation — we'll assess your space,
+                    Book a free on-site consultation — we&apos;ll assess your space,
                     recommend the right products, and deliver a tailored
                     proposal with no obligations.
                   </p>
@@ -746,11 +743,12 @@ export default function Ecosystem() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(true)}
+                <a
+                  href={waLink("Hi Precise Homes! I'd like to book a free consultation.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group relative overflow-hidden rounded-full bg-white/[0.06] border border-white/[0.12] backdrop-blur-xl pl-7 pr-2 py-2 flex items-center gap-5 transition-all duration-500 hover:bg-white/10 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-                  aria-label="Start your project with Precise Homes"
+                  aria-label="Book a consultation with Precise Homes on WhatsApp"
                 >
                   <span
                     className={`${montserrat.className} text-white text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em]`}
@@ -760,7 +758,7 @@ export default function Ecosystem() {
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-400">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </div>
-                </button>
+                </a>
 
                 <a
                   href="tel:+919895105012"
@@ -779,7 +777,6 @@ export default function Ecosystem() {
 
         {/* Bottom spacer */}
         <div className="h-16 md:h-24" />
-        <ProjectModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </section>
   );

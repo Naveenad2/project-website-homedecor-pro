@@ -1,846 +1,550 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Syne } from "next/font/google";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import { ArrowUpRight, Plus, Globe, Sparkles } from "lucide-react";
-import ProjectModal from "@/components/ui/ProjectModal";
+// ─────────────────────────────────────────────────────────────────────────────
+// Hero — "story reel" of real Precise Homes project films, with sound.
+//
+// Browsers only allow *muted* autoplay, so the reel starts muted with a clear
+// "Tap for sound" control. Once the visitor enables sound it stays on (same
+// <video> element, so iOS keeps it unlocked) as stories advance, and the choice
+// is remembered for the session. The reel pauses when scrolled away, when the
+// tab is hidden, and while the full-screen film viewer is open.
+// ─────────────────────────────────────────────────────────────────────────────
 
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, ChevronLeft, ChevronRight, MapPin, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
+import { HERO_FILMS, filmMedia } from "@/data/films";
+import { waLink } from "@/lib/site";
+import { mediaBus, safeSession, useLowMotion } from "@/lib/client-utils";
+import { syne } from "@/lib/fonts";
 
-
-// --- Typography
-const syneFont = Syne({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-// --- Constants
 const EASE = [0.22, 1, 0.36, 1] as const;
-const INTERVAL = 7000;
+const SOUND_KEY = "ph-hero-sound";
 
-// --- Slide Data
-const SLIDES = [
-  {
-    img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2500",
-    words: ["TRANSFORM", "YOUR", "HOMES"],
-    accent: 1,
-    sub: "Glass Solutions & Facades",
-    stat: { val: "500+", label: "Projects Delivered" },
-  },
-  {
-    img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2500",
-    words: ["CREATE", "INSPIRED", "SPACES"],
-    accent: 1,
-    sub: "Premium Interior Cladding",
-    stat: { val: "12+", label: "Years of Craft" },
-  },
-  {
-    img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2500",
-    words: ["PRECISE", "HOME", "AGENCY"],
-    accent: 1,
-    sub: "Saint-Gobain · Fundermax · LG Hausys",
-    stat: { val: "98%", label: "Client Satisfaction" },
-  },
+const QUICK_LINKS = [
+  { label: "uPVC Windows", href: "/products/saint-gobain-upvc-windows" },
+  { label: "System Aluminium", href: "/products/system-aluminium-windows" },
+  { label: "Toughened Glass", href: "/products/toughened-glass" },
+  { label: "Shower Partitions", href: "/products/shower-partitions" },
+  { label: "Glass Handrails", href: "/products/glass-handrails" },
+  { label: "Fundermax HPL", href: "/products/fundermax-hpl-cladding" },
+  { label: "iCLAD Cladding", href: "/products/iclad-cladding" },
 ];
 
-// --- SEO: JSON-LD Structured Data (LocalBusiness + Service schema)
-const JSON_LD = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LocalBusiness",
-      "@id": "https://precisehomes.in/#business",
-      name: "Precise Homes",
-      alternateName: "Precise Home Care Agency",
-      url: "https://precisehomes.in",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://precisehomes.in/wp-content/uploads/2024/07/cropped-precise-homes-new-fav-icon-270x270.jpg",
-      },
-      image:
-        "https://precisehomes.in/wp-content/uploads/2023/07/precise-homecare-fundermax.jpg",
-      description:
-        "Precise Homes is Ernakulam's premier home care service provider offering high-quality glass solutions, exterior cladding, and durable home appliances from Saint-Gobain, Fundermax, and LG Hausys.",
-      telephone: "+919895105012",
-      email: "info@precisehomes.in",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Building No: 42/3405, Civil Line Road, Padivattom",
-        addressLocality: "Kochi",
-        addressRegion: "Kerala",
-        postalCode: "682024",
-        addressCountry: "IN",
-      },
-      geo: {
-        "@type": "GeoCoordinates",
-        latitude: 10.0158,
-        longitude: 76.3419,
-      },
-      areaServed: [
-        { "@type": "State", name: "Kerala" },
-        { "@type": "City", name: "Ernakulam" },
-        { "@type": "City", name: "Kochi" },
-      ],
-      priceRange: "₹₹₹",
-      openingHoursSpecification: [
-        {
-          "@type": "OpeningHoursSpecification",
-          dayOfWeek: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-          ],
-          opens: "09:00",
-          closes: "18:00",
-        },
-      ],
-      sameAs: [
-        "https://www.facebook.com/precisehomesindia",
-        "https://www.instagram.com/precisehomesindia/",
-        "https://www.youtube.com/@precisehomeautocare",
-      ],
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "Home Care Services",
-        itemListElement: [
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Saint-Gobain Glass Solutions",
-              description:
-                "Authorized dealer for Saint-Gobain glass installations, facades and glazing solutions across Kerala.",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Fundermax Exterior Cladding",
-              description:
-                "Premium Fundermax exterior cladding panels for modern home and commercial facades in Ernakulam.",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "LG Hausys Interior Surfaces",
-              description:
-                "LG Hausys hi-macs and engineered surfaces for premium interior finishing in Kerala.",
-            },
-          },
-        ],
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.9",
-        reviewCount: "120",
-        bestRating: "5",
-        worstRating: "1",
-      },
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://precisehomes.in/#website",
-      url: "https://precisehomes.in",
-      name: "Precise Homes",
-      description:
-        "Kerala's trusted home care agency — glass solutions, cladding & premium appliances.",
-      publisher: { "@id": "https://precisehomes.in/#business" },
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate:
-            "https://precisehomes.in/?s={search_term_string}",
-        },
-        "query-input": "required name=search_term_string",
-      },
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "https://precisehomes.in/#breadcrumb",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: "https://precisehomes.in/",
-        },
-      ],
-    },
-  ],
-};
-
-// --- Detect touch device
-function useIsMobile() {
-  const [mobile, setMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    setMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return mobile;
-}
-
-// --- Custom Cursor (desktop only)
-function CustomCursor() {
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 240, damping: 30 });
-  const sy = useSpring(y, { stiffness: 240, damping: 30 });
-  const trailX = useSpring(x, { stiffness: 55, damping: 16 });
-  const trailY = useSpring(y, { stiffness: 55, damping: 16 });
-  const [clicked, setClicked] = useState(false);
-
-  useEffect(() => {
-    const move = (e: MouseEvent) => {
-      x.set(e.clientX);
-      y.set(e.clientY);
-    };
-    const down = () => setClicked(true);
-    const up = () => setClicked(false);
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mousedown", down);
-    window.addEventListener("mouseup", up);
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mousedown", down);
-      window.removeEventListener("mouseup", up);
-    };
-  }, [x, y]);
-
+function KineticWord({ text, accent, delay }: { text: string; accent?: boolean; delay: number }) {
   return (
-    <>
-      <motion.div
-        style={{
-          left: trailX,
-          top: trailY,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
-        className="fixed z-[999] pointer-events-none hidden md:block w-8 h-8 rounded-full border border-[#D72731]/40 mix-blend-difference"
-        animate={{ scale: clicked ? 1.6 : 1 }}
-        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.div
-        style={{
-          left: sx,
-          top: sy,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
-        className="fixed z-[999] pointer-events-none hidden md:block w-2 h-2 rounded-full bg-[#D72731]"
-        animate={{ scale: clicked ? 0.5 : 1 }}
-        transition={{ duration: 0.12 }}
-      />
-    </>
-  );
-}
-
-// --- Scan-line Overlay
-function ScanLines() {
-  return (
-    <div
-      className="absolute inset-0 z-[18] pointer-events-none opacity-[0.03]"
-      style={{
-        backgroundImage:
-          "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.08) 2px, rgba(255,255,255,0.08) 4px)",
-        backgroundSize: "100% 4px",
-      }}
-    />
-  );
-}
-
-// --- Particle type
-interface Particle {
-  id: number;
-  size: number;
-  x: number;
-  y: number;
-  dur: number;
-  delay: number;
-}
-
-// --- Ambient Particle Field
-// FIX: Particles are generated only on the client via useEffect,
-// preventing the SSR/CSR Math.random() hydration mismatch.
-function ParticleField() {
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  useEffect(() => {
-    setParticles(
-      Array.from({ length: 12 }, (_, i) => ({
-        id: i,
-        size: Math.random() * 2 + 1,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        dur: Math.random() * 8 + 6,
-        delay: Math.random() * 4,
-      }))
-    );
-  }, []);
-
-  if (particles.length === 0) return null;
-
-  return (
-    <div className="absolute inset-0 z-[16] pointer-events-none hidden lg:block overflow-hidden">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-white/20"
-          style={{
-            width: p.size,
-            height: p.size,
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-          }}
-          animate={{
-            y: [0, -34, 0],
-            opacity: [0, 0.45, 0],
-            scale: [0.7, 1.3, 0.7],
-          }}
-          transition={{
-            duration: p.dur,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// --- Character-Split Word Reveal
-function KineticWord({
-  text,
-  accent,
-  delay = 0,
-  indent = false,
-}: {
-  text: string;
-  accent?: boolean;
-  delay?: number;
-  indent?: boolean;
-}) {
-  const chars = text.split("");
-
-  return (
-    <div
-      className={`overflow-hidden flex items-end py-[2px] ${
-        indent ? "md:pl-[5vw]" : ""
-      }`}
-    >
-      <div className="flex">
-        {chars.map((ch, i) => (
+    <span className="block overflow-x-visible overflow-y-clip pb-[0.04em]">
+      <span className="flex">
+        {text.split("").map((ch, i) => (
           <motion.span
-            key={i}
-            initial={{ y: "108%", opacity: 0, rotateX: 22, skewX: -3 }}
-            animate={{ y: "0%", opacity: 1, rotateX: 0, skewX: 0 }}
-            transition={{
-              duration: 1.15,
-              delay: delay + i * 0.038,
-              ease: EASE,
-            }}
-            className={`inline-block text-[12vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.5vw] xl:text-[6.5vw] font-bold leading-[0.88] tracking-tighter uppercase drop-shadow-2xl ${
-              ch === " " ? "w-[0.25em]" : ""
-            } ${
-              accent
-                ? "text-[#02589F] saturate-[180%] brightness-[1.35]"
-                : "text-white"
-            }`}
-            style={{ display: "inline-block", willChange: "transform" }}
+            key={`${ch}-${i}`}
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            exit={{ y: "-60%", opacity: 0, transition: { duration: 0.35, delay: i * 0.012, ease: EASE } }}
+            transition={{ duration: 0.9, delay: delay + i * 0.03, ease: EASE }}
+            className={`inline-block ${accent ? "text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] via-[#5fb0ff] to-[#9ad0ff]" : "text-white"}`}
           >
-            {ch === " " ? "\u00A0" : ch}
+            {ch}
           </motion.span>
         ))}
-      </div>
-    </div>
-  );
-}
-
-// --- Rotating Stamp
-function RotatingStamp() {
-  return (
-    <div className="absolute top-28 right-10 md:top-36 md:right-20 z-30 hidden lg:flex items-center justify-center">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-        className="relative w-24 h-24 xl:w-28 xl:h-28 flex items-center justify-center opacity-50 hover:opacity-80 transition-opacity duration-500"
-      >
-        <div className="absolute inset-0 rounded-full border border-white/15" />
-        <svg className="absolute w-full h-full" viewBox="0 0 100 100">
-          <path
-            id="stamp-curve"
-            d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
-            fill="transparent"
-          />
-          <text
-            fontSize="9"
-            fontWeight="700"
-            letterSpacing="3"
-            fill="rgba(255,255,255,0.7)"
-            fontFamily="inherit"
-          >
-            <textPath href="#stamp-curve" startOffset="0%">
-              PRECISE HOME CARE • AUTHORIZED •{" "}
-            </textPath>
-          </text>
-        </svg>
-        <Globe className="w-5 h-5 text-[#D72731]" />
-      </motion.div>
-    </div>
-  );
-}
-
-// --- Scroll Indicator
-function ScrollIndicator() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.3, delay: 2.4, ease: EASE }}
-      className="flex flex-col items-center gap-2"
-    >
-      <span className="text-white/25 text-[8px] font-bold uppercase tracking-[0.5em]">
-        Scroll
       </span>
-      <div className="w-[1.5px] h-10 bg-white/10 rounded-full relative overflow-hidden">
-        <motion.div
-          className="absolute top-0 left-0 right-0 bg-gradient-to-b from-[#D72731] to-transparent rounded-full"
-          animate={{ y: ["-100%", "100%"] }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            ease: [0.45, 0, 0.55, 1],
-          }}
-          style={{ height: "50%" }}
-        />
-      </div>
-    </motion.div>
+    </span>
   );
 }
 
-// --- Slide Progress Tracker
-function SlideTracker({
-  total,
-  current,
-  onSelect,
-}: {
-  total: number;
-  current: number;
-  onSelect: (i: number) => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 22 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 1.3, delay: 1.9, ease: EASE }}
-      className="flex flex-col gap-3 items-end"
-    >
-      <div className="flex items-center justify-between w-full">
-        <span className="text-[#02589F] text-[8px] font-bold uppercase tracking-[0.45em] brightness-125">
-          Visual
-        </span>
-        <span className="text-white/30 text-[8px] font-bold tracking-widest tabular-nums">
-          {String(current + 1).padStart(2, "0")} /{" "}
-          {String(total).padStart(2, "0")}
-        </span>
-      </div>
-      <div className="flex gap-[3px] w-full h-[2px]">
-        {Array.from({ length: total }).map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => onSelect(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-            className="h-full flex-grow relative overflow-hidden bg-white/15 hover:bg-white/30 transition-colors duration-300"
-          >
-            {current === idx && (
-              <motion.div
-                key={`prog-${idx}`}
-                className="absolute inset-0 bg-[#D72731] origin-left"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: INTERVAL / 1000, ease: "linear" }}
-              />
-            )}
-            {current > idx && (
-              <div className="absolute inset-0 bg-white/50" />
-            )}
-          </button>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-// --- Live Stat Badge
-function StatBadge({ val, label }: { val: string; label: string }) {
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={val}
-        initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        exit={{ opacity: 0, y: -12, filter: "blur(5px)" }}
-        transition={{ duration: 0.9, ease: EASE }}
-        className="flex flex-col"
-      >
-        <span className="text-white font-bold text-2xl md:text-3xl tracking-tighter leading-none">
-          {val}
-        </span>
-        <span className="text-white/30 text-[8px] uppercase tracking-[0.35em] font-semibold mt-1">
-          {label}
-        </span>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-// --- Main Hero Component
 export default function Hero() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [current, setCurrent] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const isMobile = useIsMobile();
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stories = HERO_FILMS;
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const barRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const inViewRef = useRef(true);
+  const suspendedRef = useRef(false);
+  const userPausedRef = useRef(false);
+  const touchRef = useRef<{ x: number; y: number } | null>(null);
+  const swipedRef = useRef(false);
+  const advancingRef = useRef(false);
+  const userStartedRef = useRef(false);
 
+  const [index, setIndex] = useState(0);
+  const [muted, setMuted] = useState(true); // mirrored from the element's volumechange event
+  const [playing, setPlaying] = useState(false);
+  const [blocked, setBlocked] = useState(false); // browser refused autoplay
+  const [userStarted, setUserStarted] = useState(false);
+  const [readySlug, setReadySlug] = useState<string | null>(null);
+  const lowMotion = useLowMotion();
+
+  const story = stories[index];
+  const frameReady = readySlug === story.slug;
+  const needsTap = !userStarted && (lowMotion || blocked);
+  const media = filmMedia(story.slug);
+  const storyEnd = story.endCardAt ?? story.duration;
+
+  // Effect Event: called only from effects / the observers they register.
+  const tryPlay = useEffectEvent(async () => {
+    const v = videoRef.current;
+    if (!v || !inViewRef.current || suspendedRef.current || userPausedRef.current || document.hidden) return;
+    try {
+      await v.play();
+      setBlocked(false);
+    } catch {
+      if (!v.muted) {
+        v.muted = true; // volumechange → state
+        try {
+          await v.play();
+          setBlocked(false);
+          return;
+        } catch {
+          /* fall through */
+        }
+      }
+      setBlocked(true);
+    }
+  });
+
+  const go = useCallback(
+    (delta: number) => setIndex((i) => (i + delta + stories.length) % stories.length),
+    [stories.length],
+  );
+
+  /** Auto-advance exactly once per story (rAF end-detection and `ended` can both fire). */
   const advance = useCallback(() => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrent((prev) => (prev + 1) % SLIDES.length);
-      setIsTransitioning(false);
-    }, 90);
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    go(1);
+  }, [go]);
+
+  // Respect reduced-motion / Data Saver; otherwise restore the visitor's sound choice and play.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (lowMotion && !userStartedRef.current) {
+      v.pause();
+      userPausedRef.current = true;
+      return;
+    }
+    if (safeSession(SOUND_KEY) === "on") v.muted = false; // volumechange → state
+    void tryPlay();
+  }, [lowMotion]);
+
+  // New story → the <video> src prop changes (same element), restart playback.
+  useEffect(() => {
+    advancingRef.current = false;
+    barRefs.current.forEach((b, i) => {
+      if (b) b.style.transform = `scaleX(${i < index ? 1 : 0})`;
+    });
+    // tryPlay only sets state after the play() promise settles (async), never synchronously.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void tryPlay();
+  }, [index]);
+
+  // Progress, smooth audio fades and skipping the white logo outro.
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const v = videoRef.current;
+      if (v && v.duration) {
+        const t = v.currentTime;
+        const bar = barRefs.current[index];
+        if (bar) bar.style.transform = `scaleX(${Math.min(1, t / storyEnd)})`;
+        if (!v.muted) v.volume = Math.max(0, Math.min(1, Math.min(t / 0.5, (storyEnd - t) / 0.6)));
+        if (t >= storyEnd - 0.04 && !v.paused) advance();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [index, storyEnd, advance]);
+
+  // Pause when scrolled away / tab hidden; resume when back.
+  useEffect(() => {
+    const el = sectionRef.current;
+    const v = videoRef.current;
+    if (!el || !v) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.intersectionRatio >= 0.3;
+        if (inViewRef.current) void tryPlay();
+        else v.pause();
+      },
+      { threshold: [0, 0.3, 0.6] },
+    );
+    io.observe(el);
+    const onVis = () => (document.hidden ? v.pause() : void tryPlay());
+    document.addEventListener("visibilitychange", onVis);
+    const unsub = mediaBus.subscribe((owner) => {
+      suspendedRef.current = owner !== null && owner !== "hero";
+      if (suspendedRef.current) v.pause();
+      else void tryPlay();
+    });
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+      unsub();
+    };
   }, []);
 
-  const goTo = useCallback(
-    (i: number) => {
-      if (i === current) return;
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrent(i);
-        setIsTransitioning(false);
-        timerRef.current = setInterval(advance, INTERVAL);
-      }, 90);
-    },
-    [current, advance]
-  );
+  const toggleSound = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const nextMuted = !v.muted;
+    v.muted = nextMuted; // volumechange → state
+    safeSession(SOUND_KEY, nextMuted ? "off" : "on");
+    if (!nextMuted) {
+      v.volume = 1;
+      userPausedRef.current = false;
+      userStartedRef.current = true;
+      setUserStarted(true);
+      mediaBus.announce("hero");
+      v.play().catch(() => undefined);
+    }
+  }, []);
 
-  useEffect(() => {
-    timerRef.current = setInterval(advance, INTERVAL);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [advance]);
+  const togglePlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      userPausedRef.current = false;
+      userStartedRef.current = true;
+      setUserStarted(true);
+      v.play().catch(() => undefined);
+    } else {
+      userPausedRef.current = true;
+      v.pause();
+    }
+  }, []);
 
-  const slide = SLIDES[current];
+  const startWithSound = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    userPausedRef.current = false;
+    userStartedRef.current = true;
+    setUserStarted(true);
+    v.muted = false; // volumechange → state
+    safeSession(SOUND_KEY, "on");
+    mediaBus.announce("hero");
+    v.play().catch(() => undefined);
+  };
+
+  const onVideoTap = () => {
+    if (swipedRef.current) {
+      swipedRef.current = false;
+      return;
+    }
+    if (needsTap) startWithSound();
+    else toggleSound();
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    swipedRef.current = false;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touchRef.current;
+    touchRef.current = null;
+    if (!s) return;
+    const dx = e.changedTouches[0].clientX - s.x;
+    const dy = e.changedTouches[0].clientY - s.y;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      swipedRef.current = true;
+      go(dx < 0 ? 1 : -1);
+    }
+  };
+
+  const soundLabel = muted ? "Tap for sound" : "Sound on";
 
   return (
-    <>
-      {/* ── JSON-LD Structured Data ─────────────────────────────────── */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
-      />
-
-      {/* Custom cursor — desktop only */}
-      {!isMobile && <CustomCursor />}
-
-      <section
-        className={`relative min-h-[100svh] w-full bg-[#03070b] overflow-hidden ${syneFont.className}`}
-        style={{ cursor: isMobile ? "auto" : "none" }}
-        aria-label="Precise Homes Hero — Home Care Agency Ernakulam"
-      >
-        {/* 1. Background Image Engine */}
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="sync">
-            <motion.div
-              key={`bg-${current}`}
-              initial={{ opacity: 0, scale: 1.07 }}
-              animate={{ opacity: 1, scale: 1.0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 2.2, ease: EASE }}
-              className="absolute inset-0 w-full h-full origin-center"
-              style={{ willChange: "transform, opacity" }}
-            >
-              <motion.img
-                src={slide.img}
-                alt={`Precise Homes — ${slide.sub}`}
-                animate={!isMobile ? { scale: [1.0, 1.045] } : {}}
-                transition={{ duration: INTERVAL / 1000, ease: "linear" }}
-                className="w-full h-full object-cover"
-                style={{ willChange: "transform" }}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Layered gradient vignette system */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#03070b] via-[#03070b]/55 to-[#03070b]/5" />
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#03070b]/92 via-[#03070b]/35 to-transparent" />
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#03070b]/50 via-transparent to-transparent" />
-          <motion.div
-            key={`glow-${current}`}
+    <section
+      ref={sectionRef}
+      id="top"
+      aria-label="Precise Homes — Saint-Gobain windows, glass and cladding in Kochi"
+      className={`relative w-full overflow-hidden bg-[#03070b] ${syne.className}`}
+    >
+      {/* Desktop ambient backdrop — the current story, blurred */}
+      <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
+        <AnimatePresence initial={false}>
+          <motion.img
+            key={story.slug}
+            src={media.poster}
+            alt=""
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.55 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 2.2 }}
-            className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_60%_60%_at_20%_80%,rgba(2,88,159,0.18),transparent)] mix-blend-screen"
+            transition={{ duration: 1.4, ease: EASE }}
+            className="absolute inset-0 h-full w-full object-cover scale-125 blur-[70px] saturate-[1.4]"
           />
-
-          {/* Film grain */}
-          <div
-            className="absolute inset-0 z-[15] pointer-events-none opacity-[0.04] mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "repeat",
-              backgroundSize: "200px 200px",
-            }}
-          />
-
-          {!isMobile && <ScanLines />}
-          {!isMobile && <ParticleField />}
-        </div>
-
-        {/* 2. Architectural border frame */}
-        <div className="absolute inset-4 md:inset-10 border border-white/[0.07] z-20 pointer-events-none hidden md:block">
-          {[
-            "-top-[10px] -left-[10px]",
-            "-top-[10px] -right-[10px]",
-            "-bottom-[10px] -left-[10px]",
-            "-bottom-[10px] -right-[10px]",
-          ].map((pos, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: 0.9,
-                delay: 0.3 + i * 0.1,
-                ease: EASE,
-              }}
-              className={`absolute ${pos}`}
-            >
-              <Plus className="w-5 h-5 text-white/20" />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Vertical telemetry line */}
-        <motion.div
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 2.0, delay: 0.6, ease: EASE }}
-          className="absolute left-5 md:left-11 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-white/10 to-transparent z-20 hidden md:block origin-top"
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#03070b] via-[#03070b]/85 to-[#03070b]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#03070b] via-transparent to-[#03070b]/70" />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{ backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)", backgroundSize: "72px 72px" }}
         />
+      </div>
 
-        {/* 3. Rotating Stamp */}
-        <RotatingStamp />
-
-        {/* Slide number: vertical right ticker */}
-        <div className="absolute right-5 md:right-11 top-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col items-center gap-3">
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={`num-${current}`}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.7, ease: EASE }}
-              className="text-white/15 font-bold text-[9px] uppercase tracking-[0.5em] [writing-mode:vertical-rl]"
-            >
-              {String(current + 1).padStart(2, "0")} /{" "}
-              {String(SLIDES.length).padStart(2, "0")}
-            </motion.span>
-          </AnimatePresence>
-        </div>
-
-        {/* 4. Master Content Layout */}
-        <div className="relative z-30 w-full h-full min-h-[100svh] max-w-[1920px] mx-auto px-5 sm:px-10 lg:px-20 xl:px-24 flex flex-col justify-between pt-24 sm:pt-32 md:pt-36 pb-10 sm:pb-14">
-
-          {/* Eyebrow kicker */}
-          <div className="overflow-hidden">
+      <div className="relative mx-auto grid min-h-[100svh] max-w-[1920px] grid-cols-1 lg:grid-cols-12 lg:items-center lg:gap-10 px-5 sm:px-8 lg:px-16 xl:px-24 pb-8 lg:pb-12 pt-24 lg:pt-32">
+        {/* ── Copy ─────────────────────────────────────────────────────── */}
+        <div className="relative z-20 flex flex-col justify-end lg:justify-center lg:col-span-7 xl:col-span-7 min-h-[calc(100svh-8rem)] lg:min-h-0 pointer-events-none lg:pointer-events-auto">
+          <div className="pointer-events-auto">
             <motion.div
-              initial={{ y: "110%" }}
-              animate={{ y: "0%" }}
-              transition={{ duration: 1.15, delay: 0.2, ease: EASE }}
-              className="flex items-center gap-5"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
+              className="flex items-center gap-3"
             >
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 1.05, delay: 0.4, ease: EASE }}
-                className="w-10 md:w-16 h-[2px] bg-[#D72731] origin-left"
-              />
-              <span className="text-[#D72731] font-bold tracking-[0.45em] uppercase text-[8px] md:text-[9px]">
-                Home Care Agency // Ernakulam
-              </span>
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 1.0 }}
-                className="hidden sm:flex items-center gap-1.5"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D72731] animate-pulse" />
-                <span className="text-white/25 text-[7px] font-bold uppercase tracking-[0.5em]">
-                  Live
-                </span>
-              </motion.div>
+              <span className="h-[2px] w-8 sm:w-12 bg-[#D72731]" />
+              <h1 className="text-[#ff6b72] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] leading-relaxed">
+                Saint-Gobain uPVC Windows, Glass &amp; Cladding · Kochi
+              </h1>
             </motion.div>
-          </div>
 
-          {/* 5. Kinetic Typography */}
-          <div className="flex-grow flex flex-col justify-center perspective-[1200px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`slide-${current}`}
-                className="flex flex-col gap-0"
-              >
-                {slide.words.map((word, wi) => (
-                  <KineticWord
-                    key={`${current}-${wi}`}
-                    text={word}
-                    accent={wi === slide.accent}
-                    delay={wi * 0.13}
-                    indent={wi === 1}
-                  />
-                ))}
-
-                {/* Red period */}
-                <motion.div
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  transition={{ duration: 0.65, delay: 0.58, ease: EASE }}
-                  className="flex items-center gap-5 mt-2 ml-1"
-                >
-                  <span
-                    className="text-[#D72731] text-[12vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.5vw] xl:text-[6.5vw] font-bold leading-none"
-                    style={{ display: "inline-block" }}
-                  >
-                    .
-                  </span>
-                  {/* Subtitle badge */}
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`sub-${current}`}
-                      initial={{ opacity: 0, x: -18, filter: "blur(7px)" }}
-                      animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, x: 18, filter: "blur(5px)" }}
-                      transition={{ duration: 0.85, delay: 0.52, ease: EASE }}
-                      className="flex items-center gap-3 bg-white/[0.05] border border-white/10 backdrop-blur-md rounded-full px-4 py-1.5 hidden sm:flex"
-                    >
-                      <Sparkles className="w-3 h-3 text-[#D72731] shrink-0" />
-                      <span className="text-white/60 text-[9px] font-bold uppercase tracking-[0.3em]">
-                        {slide.sub}
-                      </span>
-                    </motion.div>
-                  </AnimatePresence>
+            <div className="mt-4 sm:mt-5 text-[8.2vw] lg:text-[min(4.4vw,84px)] font-extrabold uppercase leading-[0.92] tracking-tighter drop-shadow-[0_6px_30px_rgba(0,0,0,0.5)]">
+              <p className="sr-only">{story.hero?.words.join(" ")}</p>
+              <AnimatePresence mode="wait">
+                <motion.div key={story.slug} className="flex flex-col" aria-hidden="true">
+                  {story.hero?.words.map((w, i) => <KineticWord key={w + i} text={w} accent={i === 1} delay={0.1 + i * 0.12} />)}
                 </motion.div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* 6. Footer Strip */}
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-end pt-10 md:pt-14 border-t border-white/[0.08] relative">
-            <Plus className="absolute -top-2.5 left-0 text-white/15 w-5 h-5" />
-            <Plus className="absolute -top-2.5 right-0 text-white/15 w-5 h-5" />
-
-            {/* Body copy */}
-            <div className="lg:col-span-6 xl:col-span-5">
-              <motion.p
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.25, delay: 0.6, ease: EASE }}
-                className="text-white/55 text-sm md:text-[15px] leading-[1.85] font-medium max-w-xl"
-              >
-                Ernakulam's premier home care service. High-quality glass
-                solutions, exterior cladding, and appliances from{" "}
-                <span className="text-white/85 font-semibold">
-                  Saint-Gobain, Fundermax & LG Hausys
-                </span>
-                — crafted with precision.
-              </motion.p>
+              </AnimatePresence>
             </div>
 
-            {/* Controls column */}
-            <div className="lg:col-span-6 xl:col-span-7 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8">
-              {/* CTA + Stat Group */}
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.25, delay: 0.78, ease: EASE }}
-                className="flex items-center gap-6"
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.45, ease: EASE }}
+              className="mt-5 sm:mt-6 max-w-xl text-white/75 lg:text-white/60 text-[13.5px] sm:text-[15px] leading-relaxed font-medium line-clamp-3 sm:line-clamp-none"
+            >
+              Kochi&apos;s Saint-Gobain experience centre for <strong className="text-white font-semibold">uPVC &amp; system aluminium windows</strong>, toughened, laminated &amp; lacquered glass, shower partitions, glass handrails and{" "}
+              <strong className="text-white font-semibold">Fundermax HPL &amp; iCLAD cladding</strong> — supplied and installed across Kerala.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.6, ease: EASE }}
+              className="mt-6 sm:mt-7 flex flex-wrap items-center gap-3"
+            >
+              <a
+                href={waLink("Hi Precise Homes! I'd like a free quote and site visit for my home.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 rounded-full bg-[#25D366] pl-5 pr-2 py-2 text-white shadow-[0_10px_34px_rgba(37,211,102,0.35)] hover:bg-[#1ebe5b] transition-colors"
               >
-                {/* CTA Button */}
-               <button
-  type="button"
-  onClick={() => setModalOpen(true)}
-  className="group relative overflow-hidden rounded-full bg-white/[0.06] border border-white/[0.12] backdrop-blur-xl pl-7 pr-2 py-2 flex items-center gap-5 transition-all duration-500 hover:bg-white/10 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-  aria-label="Start your project with Precise Homes"
->
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-[#D72731]/10 to-transparent"
-                    initial={{ scaleX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.42 }}
-                    style={{ originX: 0 }}
-                  />
-                  <span className="text-white text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] relative z-10 whitespace-nowrap">
-                    Start Project
-                  </span>
-                  <div className="relative z-10 w-9 h-9 rounded-full bg-[#D72731] flex items-center justify-center transform group-hover:rotate-45 transition-transform duration-500 ease-out shadow-[0_0_24px_rgba(215,39,49,0.45)]">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-                  </div>
+                <WhatsAppIcon className="w-5 h-5" />
+                <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em]">Free Quote</span>
+                <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+                  <ArrowUpRight className="w-4 h-4" />
+                </span>
+              </a>
+              <Link
+                href="/#products"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] backdrop-blur-md px-5 py-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-white hover:bg-white/15 transition-colors"
+              >
+                Explore Products
+              </Link>
+              <Link href="/#films" className="hidden sm:inline-flex items-center gap-2 px-2 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60 hover:text-white transition-colors">
+                <Play className="w-3.5 h-3.5" fill="currentColor" /> Watch Films
+              </Link>
+            </motion.div>
+
+            {/* Keyword quick links (desktop) — real internal links to product pages */}
+            <motion.nav
+              aria-label="Popular products"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="hidden lg:flex flex-wrap gap-2 mt-6 max-w-2xl"
+            >
+              {QUICK_LINKS.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[10.5px] font-semibold text-white/55 hover:text-white hover:border-white/30 hover:bg-white/10 transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </motion.nav>
+
+            {/* Story selector (desktop) */}
+            <div className="hidden lg:flex items-end gap-3 mt-7">
+              {stories.map((s, i) => (
+                <button
+                  key={s.slug}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`Play story ${i + 1}: ${s.title}`}
+                  aria-current={i === index}
+                  className={`group relative w-[58px] aspect-[9/16] overflow-hidden rounded-xl ring-1 transition-all duration-500 ${i === index ? "ring-white/80 w-[72px]" : "ring-white/15 opacity-60 hover:opacity-100"}`}
+                >
+                  <img src={filmMedia(s.slug).poster} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 </button>
-
-                {/* Stat */}
-                <div className="hidden sm:block border-l border-white/10 pl-6">
-                  <StatBadge val={slide.stat.val} label={slide.stat.label} />
-                </div>
-              </motion.div>
-
-              {/* Tracker + Scroll */}
-              <div className="flex flex-col gap-6 items-end w-full max-w-[200px] sm:max-w-[220px] ml-auto">
-                <SlideTracker
-                  total={SLIDES.length}
-                  current={current}
-                  onSelect={goTo}
-                />
-                <div className="self-start md:self-end">
-                  <ScrollIndicator />
-                </div>
+              ))}
+              <div className="ml-3 pb-1">
+                <p className="text-white/35 text-[9px] font-bold uppercase tracking-[0.3em]">Now playing</p>
+                <p className="text-white text-[13px] font-semibold mt-1 max-w-[220px] leading-snug">{story.title}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Transition wipe overlay */}
-        <AnimatePresence>
-          {isTransitioning && (
-            <motion.div
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              exit={{ scaleY: 0 }}
-              transition={{ duration: 0.14, ease: "easeInOut" }}
-              style={{ originY: "center" }}
-              className="absolute inset-0 z-50 bg-[#03070b]/30 pointer-events-none"
+        {/* ── Video: full-bleed on mobile, framed 9:16 on desktop ──────── */}
+        <div className="lg:col-span-5 lg:relative lg:flex lg:justify-center">
+          <div
+            className="group/frame absolute inset-0 z-0 lg:relative lg:inset-auto lg:h-[min(70svh,620px)] xl:h-[min(74svh,720px)] lg:aspect-[9/16] lg:overflow-hidden lg:rounded-[30px] lg:ring-1 lg:ring-white/15 lg:shadow-[0_40px_120px_rgba(0,0,0,0.65)]"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <video
+              ref={videoRef}
+              src={media.src}
+              poster={media.start}
+              muted
+              autoPlay
+              playsInline
+              preload="auto"
+              aria-label={`${story.title} — ${story.location}`}
+              onClick={onVideoTap}
+              onPlaying={() => {
+                setPlaying(true);
+                setReadySlug(story.slug);
+              }}
+              onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
+              onPause={() => setPlaying(false)}
+              onEnded={advance}
+              className="absolute inset-0 h-full w-full object-cover cursor-pointer"
             />
-          )}
-        </AnimatePresence>
-      </section>
-       <ProjectModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-    </>
+            {/* Poster hand-off while the next story loads */}
+            <AnimatePresence>
+              {!frameReady && (
+                <motion.img
+                  key={story.slug}
+                  src={media.start}
+                  alt=""
+                  aria-hidden="true"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                />
+              )}
+            </AnimatePresence>
+
+            {/* Legibility gradients */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03070b] via-[#03070b]/45 to-transparent lg:from-black/70 lg:via-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#03070b]/85 to-transparent lg:h-28 lg:from-black/60" />
+
+            {/* Story progress */}
+            <div className="absolute inset-x-4 lg:inset-x-5 top-[84px] sm:top-[92px] lg:top-5 z-10 flex gap-1.5" role="tablist" aria-label="Stories">
+              {stories.map((s, i) => (
+                <button
+                  key={s.slug}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === index}
+                  aria-label={`Story ${i + 1}: ${s.title}`}
+                  onClick={() => setIndex(i)}
+                  className="relative h-6 flex-1 flex items-center"
+                >
+                  <span className="relative block h-[3px] w-full overflow-hidden rounded-full bg-white/25">
+                    <span
+                      ref={(el) => {
+                        barRefs.current[i] = el;
+                      }}
+                      className="absolute inset-0 origin-left rounded-full bg-white"
+                      style={{ transform: `scaleX(${i < index ? 1 : 0})` }}
+                    />
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Caption + controls */}
+            <div className="absolute inset-x-4 lg:inset-x-5 top-[118px] sm:top-[126px] lg:top-12 z-10 flex items-start justify-between gap-3">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={story.slug}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white/90"
+                >
+                  <MapPin className="w-3 h-3 text-[#ff6b72]" /> {story.hero?.sub}
+                </motion.span>
+              </AnimatePresence>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  aria-label={playing ? "Pause video" : "Play video"}
+                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-black/60"
+                >
+                  {playing ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 translate-x-[1px]" fill="currentColor" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Sound control — the hero's key interaction */}
+            <div className="absolute z-10 right-4 top-[162px] sm:top-[172px] lg:top-auto lg:bottom-5 lg:inset-x-5 flex lg:justify-center pointer-events-none">
+              <button
+                type="button"
+                onClick={needsTap ? startWithSound : toggleSound}
+                aria-pressed={!muted}
+                aria-label={muted ? "Turn sound on" : "Turn sound off"}
+                className={`pointer-events-auto group inline-flex items-center gap-2.5 rounded-full pl-3 pr-4 py-2.5 backdrop-blur-md border transition-all duration-500 ${
+                  muted ? "bg-white text-[#03070b] border-white shadow-[0_8px_30px_rgba(255,255,255,0.25)]" : "bg-black/45 text-white border-white/20"
+                }`}
+              >
+                {muted ? <VolumeX className="w-[18px] h-[18px]" /> : <Volume2 className="w-[18px] h-[18px]" />}
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em]">{needsTap ? "Play with sound" : soundLabel}</span>
+                {!muted && (
+                  <span className="flex items-end gap-[2px] h-3" aria-hidden="true">
+                    {[0, 1, 2, 3].map((b) => (
+                      <span key={b} className="w-[2px] rounded-full bg-[#25D366] animate-[eq_0.9s_ease-in-out_infinite]" style={{ animationDelay: `${b * 0.15}s`, height: "100%" }} />
+                    ))}
+                  </span>
+                )}
+                {muted && <span className="absolute inset-0 rounded-full ring-2 ring-white/60 animate-[wa-ping_2.4s_cubic-bezier(0,0,0.2,1)_infinite]" aria-hidden="true" />}
+              </button>
+            </div>
+
+            {/* Desktop prev/next */}
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              aria-label="Previous story"
+              className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/35 backdrop-blur-md border border-white/15 items-center justify-center text-white opacity-0 group-hover/frame:opacity-100 focus-visible:opacity-100 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              aria-label="Next story"
+              className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/35 backdrop-blur-md border border-white/15 items-center justify-center text-white opacity-0 group-hover/frame:opacity-100 focus-visible:opacity-100 transition-opacity"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Play overlay when autoplay isn't possible (reduced motion / data saver / blocked) */}
+            {needsTap && (
+              <button
+                type="button"
+                onClick={startWithSound}
+                className="absolute inset-0 z-[5] flex items-center justify-center"
+                aria-label="Play the film with sound"
+              >
+                <span className="w-20 h-20 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
+                  <Play className="w-8 h-8 translate-x-0.5" fill="currentColor" />
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

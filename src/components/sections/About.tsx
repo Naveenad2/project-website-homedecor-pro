@@ -19,7 +19,7 @@ import {
   Phone,
   Users,
 } from "lucide-react";
-import ProjectModal from "../ui/ProjectModal";
+import { waLink } from "@/lib/site";
 
 // ─── NEW FONTS (Replacing Syne, DM Sans, Outfit, Playfair) ────────────
 const spaceGrotesk = Space_Grotesk({
@@ -39,191 +39,11 @@ const fraunces = Fraunces({
   weight: ["400", "600", "700"],
   style: ["italic"],
   display: "swap",
+  variable: "--font-fraunces", // used by the italic "home today." headline
 });
 
 // ─── Animation constants ───────────────────────
 const E = [0.22, 1, 0.36, 1] as const;
-
-// ─── SEO: JSON-LD — About page LocalBusiness + AboutPage graph ───────────────
-const ABOUT_SCHEMA = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LocalBusiness",
-      "@id": "https://precisehomes.in/#business",
-      name: "Precise Homes",
-      alternateName: [
-        "Precise Home Care",
-        "Precise Home Care Agency",
-        "Precise Home Ernakulam",
-      ],
-      description:
-        "Precise Homes is Ernakulam's premier home care service provider. Since 2016, we have delivered 500+ projects across Kerala — supplying and installing Saint-Gobain glass, Fundermax exterior cladding, and LG Hausys solid surface interiors.",
-      url: "https://precisehomes.in",
-      telephone: "+919895105012",
-      email: "info@precisehomes.in",
-      foundingDate: "2016",
-      numberOfEmployees: { "@type": "QuantitativeValue", value: "25" },
-      logo: {
-        "@type": "ImageObject",
-        url: "https://precisehomes.in/wp-content/uploads/2024/07/cropped-precise-homes-new-fav-icon-270x270.jpg",
-        width: 270,
-        height: 270,
-      },
-      image: [
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000",
-        "https://precisehomes.in/wp-content/uploads/2023/07/precise-homecare-fundermax.jpg",
-      ],
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Building No: 42/3405, Civil Line Road, Padivattom",
-        addressLocality: "Kochi",
-        addressRegion: "Kerala",
-        postalCode: "682024",
-        addressCountry: "IN",
-      },
-      geo: {
-        "@type": "GeoCoordinates",
-        latitude: 10.0261,
-        longitude: 76.3083,
-      },
-      priceRange: "₹₹₹",
-      areaServed: [
-        { "@type": "City", name: "Ernakulam" },
-        { "@type": "City", name: "Kochi" },
-        { "@type": "City", name: "Thrissur" },
-        { "@type": "City", name: "Calicut" },
-        { "@type": "City", name: "Trivandrum" },
-        { "@type": "State", name: "Kerala" },
-      ],
-      knowsAbout: [
-        "Saint-Gobain Glass Solutions",
-        "Fundermax HPL Exterior Cladding",
-        "LG Hausys Solid Surfaces",
-        "Home Renovation Ernakulam",
-        "Building Material Installation Kerala",
-      ],
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "Precise Homes Services",
-        itemListElement: [
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Saint-Gobain Glass Installation Kerala",
-              description:
-                "Supply and installation of Saint-Gobain glass solutions — windows, doors, facades, structural glass and uPVC systems across Kerala.",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "Fundermax Exterior Cladding Kerala",
-              description:
-                "Fundermax HPL exterior cladding panels — weather-proof, fire-rated facade solutions for homes and commercial buildings in Ernakulam.",
-            },
-          },
-          {
-            "@type": "Offer",
-            itemOffered: {
-              "@type": "Service",
-              name: "LG Hausys Interior Surface Installation Kerala",
-              description:
-                "LG Hausys HI-MACS solid surfaces for kitchens, bathrooms, and feature walls across Kerala.",
-            },
-          },
-        ],
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.9",
-        reviewCount: "134",
-        bestRating: "5",
-        worstRating: "1",
-      },
-      openingHoursSpecification: [
-        {
-          "@type": "OpeningHoursSpecification",
-          dayOfWeek: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-          ],
-          opens: "09:00",
-          closes: "18:00",
-        },
-      ],
-      sameAs: [
-        "https://www.facebook.com/precisehomesindia",
-        "https://www.instagram.com/precisehomesindia/",
-        "https://www.youtube.com/@precisehomeautocare",
-      ],
-    },
-    {
-      "@type": "AboutPage",
-      "@id": "https://precisehomes.in/about-us/#webpage",
-      url: "https://precisehomes.in/about-us",
-      name: "About Precise Homes — Home Care Agency Ernakulam Kerala",
-      description:
-        "Learn about Precise Homes — Ernakulam's trusted authorized dealer for Saint-Gobain, Fundermax and LG Hausys. 500+ projects. Design-to-installation support across Kerala since 2016.",
-      inLanguage: "en-IN",
-      isPartOf: { "@id": "https://precisehomes.in/#website" },
-      about: { "@id": "https://precisehomes.in/#business" },
-      breadcrumb: {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: "https://precisehomes.in/",
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "About Us",
-            item: "https://precisehomes.in/about-us",
-          },
-        ],
-      },
-    },
-    {
-      "@type": "FAQPage",
-      "@id": "https://precisehomes.in/about-us/#faq",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "Is Precise Homes an authorized Saint-Gobain dealer in Kerala?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Yes. Precise Homes is an authorized dealer and certified installer for Saint-Gobain glass products across Kerala, including Ernakulam, Kochi and Thrissur.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Does Precise Homes offer on-site visits in Ernakulam?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Yes. We provide free on-site visits throughout Kerala to assess requirements and prepare tailored proposals for glass, cladding and surface installations.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Which areas does Precise Homes serve in Kerala?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Precise Homes serves all districts across Kerala including Ernakulam, Kochi, Thrissur, Calicut and Trivandrum with sales and after-sales support.",
-          },
-        },
-      ],
-    },
-  ],
-};
 
 // ─── Images ───────────────────────────────────────────────────────────────────
 const IMG = {
@@ -242,15 +62,15 @@ const IMG = {
 };
 
 const MARQUEE_NAMES = [
-  "Saint Gobain",
+  "Saint-Gobain",
   "Fundermax",
+  "iCLAD",
+  "Novelio",
+  "Dimore",
+  "Vitrum",
+  "Forms+Surfaces",
   "LG Hausys",
-  "Saint Gobain",
-  "Fundermax",
-  "LG Hausys",
-  "Saint Gobain",
-  "Fundermax",
-  "LG Hausys",
+  "3M",
 ];
 
 const SERVICES = [
@@ -365,7 +185,6 @@ function ImgCell({
 
 // ─── Root Section ─────────────────────────────────────────────────────────────
 export default function AboutUs() {
-  const [modalOpen, setModalOpen] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -377,13 +196,8 @@ export default function AboutUs() {
     <section
       ref={sectionRef}
       id="about"
-      className={`relative w-full bg-[#03070b] overflow-hidden ${spaceGrotesk.variable} ${jakarta.variable} font-[family-name:var(--font-space)] bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]`}
+      className={`relative w-full bg-[#03070b] overflow-hidden ${spaceGrotesk.variable} ${jakarta.variable} ${fraunces.variable} font-[family-name:var(--font-space)] bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]`}
     >
-      {/* ── JSON-LD SEO ── */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ABOUT_SCHEMA) }}
-      />
 
       {/* ── Ambient glow ── */}
       <div
@@ -480,17 +294,18 @@ export default function AboutUs() {
               transition={{ duration: 0.95, delay: 0.44, ease: E }}
               className="flex items-center gap-5 flex-wrap"
             >
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
+              <a
+                href={waLink("Hi Precise Homes! I'd like to start a project with you.")}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group relative overflow-hidden rounded-full bg-white/[0.06] border border-white/[0.12] backdrop-blur-xl pl-7 pr-2 py-2 flex items-center gap-5 transition-all duration-500 hover:bg-white/10 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-                aria-label="Start your project with Precise Homes"
+                aria-label="Start your project with Precise Homes on WhatsApp"
               >
                 <span className="font-[family-name:var(--font-space)] text-white text-[10px] md:text-[11px] font-bold uppercase tracking-[0.22em]">
                   Start Project
                 </span>
                 <ArrowUpRight className="w-4 h-4 text-white transform group-hover:rotate-45 transition-transform duration-400" />
-              </button>
+              </a>
               <a
                 href="tel:+919895105012"
                 aria-label="Call Precise Homes"
@@ -746,7 +561,7 @@ export default function AboutUs() {
                 Premium Quality Guaranteed
               </h4>
               <p className="font-[family-name:var(--font-jakarta)] text-white/70 text-[12px] md:text-[13px] leading-relaxed mb-5">
-                Authorized dealers for the world's most trusted home material
+                Authorized dealers for the world&apos;s most trusted home material
                 brands — every product meets international standards.
               </p>
               <div className="flex flex-col gap-2.5">
@@ -982,16 +797,17 @@ export default function AboutUs() {
                 </motion.h3>
               </div>
               <p className="font-[family-name:var(--font-jakarta)] text-white/50 text-[14px] md:text-[15px] leading-relaxed max-w-md">
-                Contact us for a free on-site consultation. We'll visit your
+                Contact us for a free on-site consultation. We&apos;ll visit your
                 space and craft a proposal tailored precisely to your vision and
                 budget.
               </p>
             </div>
 
-            <motion.button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              aria-label="Start your project with Precise Homes"
+            <motion.a
+              href={waLink("Hi Precise Homes! I'd like a free quote and site visit.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Get a free quote from Precise Homes on WhatsApp"
               initial={{ opacity: 0, scale: 0.92 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -1004,13 +820,12 @@ export default function AboutUs() {
               <div className="w-10 h-10 rounded-full bg-[#D72731] flex items-center justify-center transform group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_24px_rgba(215,39,49,0.5)]">
                 <ArrowUpRight className="w-4 h-4 text-white" />
               </div>
-            </motion.button>
+            </motion.a>
           </div>
         </motion.div>
 
         {/* Bottom spacer */}
         <div className="h-16 md:h-24" />
-        <ProjectModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </section>
   );

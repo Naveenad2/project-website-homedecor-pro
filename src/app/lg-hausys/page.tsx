@@ -9,10 +9,11 @@ import {
 import {
   ArrowUpRight, Plus, X, ChevronLeft, ChevronRight,
   Eye, ArrowLeft, MapPin, Phone, Mail, Shield, Layers,
-  Droplets, Sun, Award, Cpu, Film, LayoutGrid,
+  Sun, Award, Cpu, Film, LayoutGrid,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { LD_ID, SITE, waLink } from "@/lib/site";
 
 // ─── Font ────────────────────────────────────────────────────────────────────
 const syneFont = Syne({
@@ -61,40 +62,29 @@ const SCHEMA = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Product",
-      "name": "LG Hausys Interior Surfaces Kerala",
-      "brand": { "@type": "Brand", "name": "LG Hausys" },
-      "description": "Premium LG Hausys interior films and solid surfaces. Authorized dealer in Ernakulam, Kerala. Highly durable, seamless, and visually stunning architectural finishes for residential and commercial projects.",
-      "offers": {
-        "@type": "Offer",
-        "seller": { "@type": "Organization", "name": "Precise Homes", "url": "https://precisehomes.in" },
-        "areaServed": "Kerala, India",
-      },
+      "@type": "WebPage",
+      "@id": "https://precisehomes.in/lg-hausys#webpage",
+      url: "https://precisehomes.in/lg-hausys",
+      name: "LG Hausys Interior Surfaces in Kochi — Precise Homes",
+      isPartOf: { "@id": LD_ID.website },
+      about: { "@id": LD_ID.business },
+      breadcrumb: { "@id": "https://precisehomes.in/lg-hausys#breadcrumb" },
+      inLanguage: "en-IN",
     },
     {
-      "@type": "LocalBusiness",
-      "@id": "https://precisehomes.in/#business",
-      "name": "Precise Homes",
-      "description": "Authorized dealer for LG Hausys interior films, HI-MACS solid surfaces, and architectural finishes in Ernakulam, Kochi, Thrissur and across Kerala.",
-      "url": "https://precisehomes.in/lg-hausys/",
-      "telephone": "+919895105012",
-      "email": "precisehomeauto@gmail.com",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Building No: 42/3405, Civil Line Road, Padivattom",
-        "addressLocality": "Kochi",
-        "addressRegion": "Kerala",
-        "postalCode": "682024",
-        "addressCountry": "IN",
-      },
-      "geo": { "@type": "GeoCoordinates", "latitude": 10.0261, "longitude": 76.3083 },
+      "@type": "BreadcrumbList",
+      "@id": "https://precisehomes.in/lg-hausys#breadcrumb",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://precisehomes.in/" },
+        { "@type": "ListItem", position: 2, name: "LG Hausys Interior Surfaces", item: "https://precisehomes.in/lg-hausys" },
+      ],
     },
     {
       "@type": "ImageGallery",
-      "name": "LG Hausys Surfaces Portfolio – Precise Homes Kerala",
-      "description": "Completed LG Hausys interior film and solid surface projects across Ernakulam, Kochi, and Thrissur Kerala.",
-      "numberOfItems": 8,
-      "keywords": "LG Hausys Kerala, interior film Ernakulam, HI-MACS Kochi, wood finish ceiling Thrissur, solid surfaces Kerala, LG Hausys dealer Kerala, wall paneling Ernakulam",
+      name: "LG Hausys Interior Surfaces projects by Precise Homes, Kerala",
+      description: "Completed LG Hausys interior panels and surfaces projects across Ernakulam, Kochi, Thrissur and Kerala.",
+      numberOfItems: GALLERY.length,
+      publisher: { "@id": LD_ID.business },
     },
   ],
 };
@@ -230,9 +220,9 @@ function GalleryCard({ item, index, onOpen }: { item: GalleryItem; index: number
   );
 }
 
-function Lightbox({ item, items, onClose, onNav }: {
+function Lightbox({ item, items, onClose, onNav, onJump }: {
   item: GalleryItem; items: GalleryItem[];
-  onClose: () => void; onNav: (dir: 1 | -1) => void;
+  onClose: () => void; onNav: (dir: 1 | -1) => void; onJump: (it: GalleryItem) => void;
 }) {
   const idx = items.findIndex((i) => i.id === item.id);
   const filmRef = useRef<HTMLDivElement>(null);
@@ -324,7 +314,7 @@ function Lightbox({ item, items, onClose, onNav }: {
               </dl>
             </div>
             <div className="pt-6 mt-6 border-t border-white/10">
-              <Link href="/contact" className="group flex items-center gap-4 w-full"
+              <a href={waLink(`Hi Precise Homes! I'd like a project like "${item.title}" (LG Hausys Interior Surfaces).`)} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 w-full"
                 aria-label="Start a similar LG Hausys project">
                 <span className="text-white/50 text-[9px] uppercase tracking-[0.3em] font-bold group-hover:text-white transition-colors">
                   Start a Similar Project
@@ -332,7 +322,7 @@ function Lightbox({ item, items, onClose, onNav }: {
                 <div className="ml-auto w-9 h-9 rounded-full bg-[#02589F]/20 border border-[#02589F]/40 flex items-center justify-center group-hover:bg-[#02589F] transition-all duration-300">
                   <ArrowUpRight className="w-3.5 h-3.5 text-[#60b4ff] group-hover:text-white transition-colors" />
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -340,10 +330,10 @@ function Lightbox({ item, items, onClose, onNav }: {
           <div ref={filmRef}
             className="flex gap-1.5 overflow-x-auto p-3 bg-black/30 border-t border-white/10"
             style={{ scrollbarWidth: "none" }}
-            role="listbox" aria-label="All projects">
+            aria-label="All projects">
             {items.map((it) => (
               <button key={it.id} data-active={it.id === item.id}
-                aria-selected={it.id === item.id} aria-label={`Go to ${it.title}`}
+                aria-current={it.id === item.id} aria-label={`Go to ${it.title}`} onClick={() => onJump(it)}
                 className={`shrink-0 w-14 h-10 overflow-hidden transition-all duration-300 rounded-[1px] ${it.id === item.id ? "ring-[1.5px] ring-[#02589F] opacity-100" : "opacity-30 hover:opacity-60"}`}>
                 <img src={it.src} alt="" aria-hidden="true" className="w-full h-full object-cover" loading="lazy" />
               </button>
@@ -359,6 +349,27 @@ function Lightbox({ item, items, onClose, onNav }: {
       </button>
     </motion.div>
   );
+}
+
+type Feature = { Icon: React.ComponentType<{ className?: string }>; title: string; desc: string };
+
+/** One feature tile — hooks live at component level (they were previously called inside .map()). */
+function FeatureCard({ Icon, title, desc, i }: Feature & { i: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-5%" });
+  return (
+                <motion.div ref={ref}
+                  initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.9, delay: i * 0.08, ease: EASE }}
+                  className="group relative bg-white/[0.03] border border-white/[0.07] p-6 lg:p-7 hover:border-[#02589F]/30 hover:bg-white/[0.06] transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-0 h-[1px] bg-[#02589F] group-hover:w-full transition-all duration-700" />
+                  <div className="w-10 h-10 rounded-full bg-[#02589F]/10 border border-[#02589F]/20 flex items-center justify-center mb-5 group-hover:bg-[#02589F]/20 transition-all duration-300">
+                    <Icon className="w-4 h-4 text-[#60b4ff]" />
+                  </div>
+                  <h3 className="text-white font-bold text-sm md:text-base tracking-tight mb-2">{title}</h3>
+                  <p className="text-white/35 text-[12px] leading-[1.75] font-medium">{desc}</p>
+                </motion.div>
+              );
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -426,7 +437,7 @@ export default function LGHausysPage() {
           <span className="text-white/20 text-[10px]">×</span>
           <span className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium">Precise Homes</span>
         </div>
-<a href="mailto:precisehomeauto@gmail.com?subject=Inquiry%20from%20Website"
+<a href={waLink("Hi Precise Homes! I'd like a quote for LG Hausys Interior Surfaces.")} target="_blank" rel="noopener noreferrer"
   className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-[#D72731] text-white text-[9px] font-bold uppercase tracking-[0.3em] hover:bg-[#D72731]/80 transition-all shadow-[0_0_20px_rgba(215,39,49,0.3)]">
   Get Quote
   <ArrowUpRight className="w-3 h-3" />
@@ -452,21 +463,23 @@ export default function LGHausysPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-end">
             {/* Title */}
             <motion.div className="lg:col-span-7" style={{ y: parallaxY }}>
+              <h1>
               {[
                 { text: "LG",      color: "text-white",       delay: 0 },
                 { text: "HAUSYS",  color: "text-[#02589F]",   delay: 0.1 },
                 { text: "SURFACES",color: "text-white",       delay: 0.2 },
               ].map(({ text, color, delay }) => (
-                <div key={text} className="overflow-hidden">
-                  <motion.h1
+                <span key={text} className="block overflow-hidden">
+                  <motion.span
                     initial={{ y: "105%", rotateX: 10, filter: "blur(10px)" }}
                     animate={heroInView ? { y: "0%", rotateX: 0, filter: "blur(0px)" } : {}}
                     transition={{ duration: 1.5, delay, ease: EASE }}
-                    className={`${syneFont.className} text-[17vw] sm:text-[12vw] lg:text-[9vw] xl:text-[8vw] font-bold leading-[0.85] tracking-tighter uppercase ${color}`}>
+                    className={`${syneFont.className} block text-[17vw] sm:text-[12vw] lg:text-[9vw] xl:text-[8vw] font-bold leading-[0.85] tracking-tighter uppercase ${color}`}>
                     {text}
-                  </motion.h1>
-                </div>
+                  </motion.span>
+                </span>
               ))}
+              </h1>
               <div className="overflow-hidden">
                 <motion.p
                   initial={{ y: "105%", filter: "blur(10px)" }}
@@ -500,7 +513,7 @@ export default function LGHausysPage() {
               <motion.p initial={{ opacity: 0, y: 20 }} animate={heroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1.2, delay: 0.52, ease: EASE }}
                 className="text-white/45 text-sm md:text-[15px] leading-[1.85] font-medium">
-                As Ernakulam's authorized <strong className="text-white/60 font-semibold">LG Hausys dealer</strong>, Precise Homes delivers
+                As Ernakulam&apos;s authorized <strong className="text-white/60 font-semibold">LG Hausys dealer</strong>, Precise Homes delivers
                 unmatched interior aesthetics. From flawless HI-MACS solid surfaces to highly realistic interior architectural films,
                 we transform your spaces with world-class materials and seamless installation.
               </motion.p>
@@ -533,23 +546,9 @@ export default function LGHausysPage() {
             <span className="text-[#60b4ff] font-bold tracking-[0.45em] uppercase text-[9px]">Why LG Hausys</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {FEATURES.map(({ Icon, title, desc }, i) => {
-              const ref = useRef(null);
-              const inView = useInView(ref, { once: true, margin: "-5%" });
-              return (
-                <motion.div key={title} ref={ref}
-                  initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.9, delay: i * 0.08, ease: EASE }}
-                  className="group relative bg-white/[0.03] border border-white/[0.07] p-6 lg:p-7 hover:border-[#02589F]/30 hover:bg-white/[0.06] transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-0 h-[1px] bg-[#02589F] group-hover:w-full transition-all duration-700" />
-                  <div className="w-10 h-10 rounded-full bg-[#02589F]/10 border border-[#02589F]/20 flex items-center justify-center mb-5 group-hover:bg-[#02589F]/20 transition-all duration-300">
-                    <Icon className="w-4 h-4 text-[#60b4ff]" />
-                  </div>
-                  <h3 className="text-white font-bold text-sm md:text-base tracking-tight mb-2">{title}</h3>
-                  <p className="text-white/35 text-[12px] leading-[1.75] font-medium">{desc}</p>
-                </motion.div>
-              );
-            })}
+            {FEATURES.map(({ Icon, title, desc }, i) => (
+              <FeatureCard key={title} Icon={Icon} title={title} desc={desc} i={i} />
+            ))}
           </div>
         </section>
 
@@ -653,14 +652,14 @@ export default function LGHausysPage() {
                 <span className="text-white font-bold text-sm tracking-[0.2em] uppercase">Precise Homes</span>
               </div>
               <p className="text-white/35 text-[12px] leading-[1.85] max-w-sm mb-6">
-                Ernakulam's authorized dealer for LG Hausys interior panels, Saint-Gobain glass solutions,
+                Ernakulam&apos;s authorized dealer for LG Hausys interior panels, Saint-Gobain glass solutions,
                 and Fundermax HPL exterior cladding. Premium supply & installation across Kerala.
               </p>
               <div className="flex items-center gap-3">
-                {(["Facebook", "Instagram", "YouTube"]).map((s) => (
-                  <div key={s} className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#02589F]/40 hover:bg-[#02589F]/10 transition-all cursor-pointer">
+                {([["Facebook", SITE.social.facebook], ["Instagram", SITE.social.instagram], ["YouTube", SITE.social.youtube]] as const).map(([s, href]) => (
+                  <a key={s} href={href} target="_blank" rel="noopener noreferrer" aria-label={s} className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#02589F]/40 hover:bg-[#02589F]/10 transition-all cursor-pointer">
                     <span className="text-white/30 text-[7px] font-bold">{s[0]}</span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -695,7 +694,7 @@ export default function LGHausysPage() {
                   { label: "LG Hausys Panels",        href: "/lg-hausys" },
                   { label: "Saint-Gobain Glass",     href: "/saint-gobain" },
                   { label: "Fundermax HPL Cladding", href: "/fundermax" },
-                  { label: "Get a Quote",             href: "/contact" },
+                  { label: "All Products",            href: "/products" },
                 ].map(({ label, href }) => (
                   <Link key={label} href={href}
                     className="flex items-center gap-3 group text-white/35 hover:text-white transition-colors">
@@ -722,7 +721,7 @@ export default function LGHausysPage() {
       {/* ── LIGHTBOX ─────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {lightboxItem && (
-          <Lightbox item={lightboxItem} items={GALLERY} onClose={closeLightbox} onNav={navLightbox} />
+          <Lightbox item={lightboxItem} items={GALLERY} onClose={closeLightbox} onNav={navLightbox} onJump={setLightboxItem} />
         )}
       </AnimatePresence>
     </main>

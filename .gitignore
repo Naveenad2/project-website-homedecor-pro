@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Original high-resolution source media (~4.5 GB). Never commit or deploy these:
+# the web-optimised copies used by the site live in /public/media and /public/catalogues.
+/public/new content/

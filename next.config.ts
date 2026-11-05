@@ -1,24 +1,33 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+// NOTE: the previous version of this file never exported its config, so none of
+// these settings were applied. It is now a proper default export.
+const MEDIA_CACHE = "public, max-age=604800, stale-while-revalidate=2592000"; // 7 days, revalidate in background
+
+const nextConfig: NextConfig = {
   images: {
-    formats: ["image/avif", "image/webp"],  // auto-convert to modern formats
+    formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
   },
   compress: true,
-  poweredByHeader: false,  // remove X-Powered-By header
-  headers: async () => [
-    {
-      source: "/(.*)",
-      headers: [
-        { key: "X-DNS-Prefetch-Control", value: "on" },
-        { key: "X-Content-Type-Options", value: "nosniff" },
-        { key: "Referrer-Policy", value: "origin-when-cross-origin" },
-      ],
-    },
-    {
-      // Cache static assets aggressively
-      source: "/images/(.*)",
-      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-    },
-  ],
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+      { source: "/images/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=2592000" }] },
+      // Films, previews, posters, product images and share cards
+      { source: "/media/:path*", headers: [{ key: "Cache-Control", value: MEDIA_CACHE }] },
+      // Brochure PDFs, covers and preview pages
+      { source: "/catalogues/:path*", headers: [{ key: "Cache-Control", value: MEDIA_CACHE }] },
+    ];
+  },
 };
+
+export default nextConfig;

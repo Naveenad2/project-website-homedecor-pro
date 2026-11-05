@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { Syne } from "next/font/google";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { ChevronDown, MapPin, Phone, Mail, ArrowRight, ArrowUpRight } from "lucide-react";
-import ProjectModal from "../ui/ProjectModal"; // Added ProjectModal import
+import WhatsAppIcon from "../ui/WhatsAppIcon";
+import { SITE, telLink, waLink } from "@/lib/site";
+import { useScrollLock } from "@/lib/client-utils";
+
+const CONTACT_MESSAGE = "Hi Precise Homes! I'd like to talk to your team about my project.";
 
 // --- Synchronized Font (matches Hero exactly) ---
 const syneFont = Syne({
@@ -14,22 +19,34 @@ const syneFont = Syne({
 });
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
 
 // --- Navigation Data ---
-const NAV_LINKS = [
+type NavLink = { name: string; href: string; dropdown?: { label: string; href: string; desc: string }[] };
+const NAV_LINKS: NavLink[] = [
   { name: "HOME", href: "/" },
-  { name: "ABOUT US", href: "#about" },
   {
-    name: "HOME CARE",
-    href: "#",
+    name: "PRODUCTS",
+    href: "/products",
     dropdown: [
-      { label: "Fundermax", href: "fundermax", desc: "HPL Facade Cladding" },
-      { label: "Saint Gobain", href: "saint-gobain", desc: "Premium Glass Solutions" },
-      { label: "LG Hausys", href: "lg-hausys", desc: "Interior Surface Films" },
+      { label: "Windows & Doors", href: "/products#windows-doors", desc: "uPVC, aluminium & automatic doors" },
+      { label: "Glass", href: "/products#glass", desc: "Toughened, laminated, showers & rails" },
+      { label: "Cladding & HPL", href: "/products#cladding", desc: "Fundermax HPL & iCLAD stone" },
+      { label: "Walls & Surfaces", href: "/products#walls-surfaces", desc: "Novelio, Forms+Surfaces, LG Hausys" },
+      { label: "All Products", href: "/products", desc: "Browse the full range" },
     ],
   },
-  { name: "CONTACT US", href: "#contact" },
+  { name: "FILMS", href: "/films" },
+  { name: "CATALOGUES", href: "/catalogues" },
+  {
+    name: "BRANDS",
+    href: "/#brands",
+    dropdown: [
+      { label: "Saint Gobain", href: "/saint-gobain", desc: "Premium Glass Solutions" },
+      { label: "Fundermax", href: "/fundermax", desc: "HPL Facade Cladding" },
+      { label: "LG Hausys", href: "/lg-hausys", desc: "Interior Surface Films" },
+    ],
+  },
+  { name: "ABOUT", href: "/#about" },
 ];
 
 const SOCIAL_LINKS = [
@@ -66,7 +83,7 @@ const SOCIAL_LINKS = [
 ];
 
 // --- Desktop Dropdown ---
-function DropdownMenu({ items }: { items: NonNullable<(typeof NAV_LINKS)[0]["dropdown"]> }) {
+function DropdownMenu({ items }: { items: NonNullable<NavLink["dropdown"]> }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
@@ -80,12 +97,14 @@ function DropdownMenu({ items }: { items: NonNullable<(typeof NAV_LINKS)[0]["dro
 
       <div className="bg-[#0d1420] border border-white/10 rounded-xl overflow-hidden shadow-[0_24px_60px_-8px_rgba(0,0,0,0.7)] backdrop-blur-2xl p-1.5 mt-1">
         {items.map((item, idx) => (
-          <motion.a
+          <motion.div
             key={item.label}
-            href={item.href}
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.06, duration: 0.3, ease: EASE }}
+          >
+          <Link
+            href={item.href}
             className="group flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white/[0.06] transition-all duration-200"
           >
             <div className="flex flex-col gap-0.5">
@@ -99,7 +118,8 @@ function DropdownMenu({ items }: { items: NonNullable<(typeof NAV_LINKS)[0]["dro
             <div className="w-6 h-6 rounded-full border border-white/10 flex items-center justify-center opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:bg-[#D72731] group-hover:border-[#D72731] transition-all duration-300">
               <ArrowRight className="w-3 h-3 text-white" />
             </div>
-          </motion.a>
+          </Link>
+          </motion.div>
         ))}
         {/* Bottom brand strip */}
         <div className="mt-1 pt-2 px-4 pb-2 border-t border-white/[0.06] flex items-center gap-2">
@@ -141,18 +161,14 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false); // Added state for ProjectModal
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50);
   });
 
-  // Lock body scroll when mobile menu open
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
+  // Lock page scroll while the full-screen mobile menu is open
+  useScrollLock(menuOpen);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -206,7 +222,7 @@ export default function Navbar() {
             {/* Right: phone / email / socials */}
             <div className="flex items-center gap-7">
               <a
-                href="tel:+919895105012"
+                href={telLink}
                 className="flex items-center gap-2 text-white/50 hover:text-white transition-colors duration-300 group"
               >
                 <Phone className="w-3 h-3 text-[#D72731]" />
@@ -246,18 +262,15 @@ export default function Navbar() {
           <div className="max-w-[1920px] mx-auto px-5 sm:px-8 md:px-12 lg:px-24 flex items-center justify-between">
 
             {/* Logo */}
-            <motion.a
-              href="/"
-              className="relative z-50 flex items-center"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
+            <Link href="/" aria-label="Precise Homes — home" className="relative z-50 flex items-center transition-transform duration-300 hover:scale-[1.02]">
               <img
-                src="/logo.png"
-                alt="Precise Home"
+                src="/logo-nav.webp"
+                alt="Precise Homes"
+                width={360}
+                height={229}
                 className={`w-auto object-contain transition-all duration-500 ${scrolled ? "h-8 md:h-9" : "h-9 md:h-11"}`}
               />
-            </motion.a>
+            </Link>
 
             {/* Desktop nav links */}
             <nav className="hidden lg:flex items-center gap-10 xl:gap-12">
@@ -268,14 +281,9 @@ export default function Navbar() {
                   onMouseEnter={() => link.dropdown && setActiveDropdown(link.name)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <a
-                    href={link.name === "CONTACT US" ? "#" : link.href} // Prevent default anchor jump for Contact Us
-                    onClick={(e) => {
-                      if (link.name === "CONTACT US") {
-                        e.preventDefault();
-                        setModalOpen(true);
-                      }
-                    }}
+                  <Link
+                    href={link.href}
+                    onFocus={() => link.dropdown && setActiveDropdown(link.name)}
                     className="group flex items-center gap-1 text-[10px] xl:text-[11px] font-bold uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors duration-300 py-3"
                   >
                     {link.name}
@@ -289,7 +297,7 @@ export default function Navbar() {
                     )}
                     {/* Underline reveal */}
                     <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#D72731] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-400 ease-out" />
-                  </a>
+                  </Link>
 
                   <AnimatePresence>
                     {link.dropdown && activeDropdown === link.name && (
@@ -302,21 +310,23 @@ export default function Navbar() {
 
             {/* Right actions */}
             <div className="flex items-center gap-3 md:gap-4 relative z-50">
-              {/* CTA — hidden on small screens */}
-              <motion.button
-                type="button"
-                onClick={() => setModalOpen(true)} // Opens the modal
+              {/* CTA — Contact Us opens WhatsApp chat with the team */}
+              <motion.a
+                href={waLink(CONTACT_MESSAGE)}
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                aria-label={`Contact us on WhatsApp ${SITE.phoneDisplay}`}
                 className="hidden md:flex items-center gap-3 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] hover:border-white/25 pl-5 pr-1.5 py-1.5 rounded-full backdrop-blur-md transition-all duration-400 group"
               >
                 <span className="text-white text-[9px] xl:text-[10px] font-bold uppercase tracking-[0.25em]">
                   Contact Us
                 </span>
-                <div className="w-7 h-7 rounded-full bg-[#D72731] flex items-center justify-center group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_16px_rgba(215,39,49,0.4)]">
-                  <ArrowUpRight className="w-3 h-3 text-white" />
+                <div className="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-[0_0_16px_rgba(37,211,102,0.45)]">
+                  <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
                 </div>
-              </motion.button>
+              </motion.a>
 
               {/* Hamburger */}
               <motion.button
@@ -406,17 +416,9 @@ export default function Navbar() {
                         animate={{ y: "0%" }}
                         transition={{ delay: 0.2 + i * 0.08, duration: 0.75, ease: EASE }}
                       >
-                        <a
-                          href={link.name === "CONTACT US" ? "#" : link.href} // Prevent anchor jump
-                          onClick={(e) => {
-                            if (link.name === "CONTACT US") {
-                              e.preventDefault();
-                              setModalOpen(true); // Open modal on mobile nav link click
-                              closeMenu();
-                            } else if (!link.dropdown) {
-                              closeMenu();
-                            }
-                          }}
+                        <Link
+                          href={link.href}
+                          onClick={closeMenu}
                           className="group flex items-center justify-between py-4 md:py-5"
                         >
                           <div className="flex items-baseline gap-4 md:gap-6">
@@ -437,7 +439,7 @@ export default function Navbar() {
                               <ArrowUpRight className="w-3 h-3 text-white" />
                             </div>
                           )}
-                        </a>
+                        </Link>
                       </motion.div>
 
                       {/* Sub-items (always visible inside menu) */}
@@ -448,8 +450,8 @@ export default function Navbar() {
                           transition={{ delay: 0.3 + i * 0.08, duration: 0.5 }}
                           className="flex flex-wrap gap-3 pb-4 pl-8 md:pl-12"
                         >
-                          {link.dropdown.map((item, di) => (
-                            <a
+                          {link.dropdown.map((item) => (
+                            <Link
                               key={item.label}
                               href={item.href}
                               onClick={closeMenu}
@@ -459,7 +461,7 @@ export default function Navbar() {
                               <span className="text-white/60 group-hover:text-white text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] transition-colors">
                                 {item.label}
                               </span>
-                            </a>
+                            </Link>
                           ))}
                         </motion.div>
                       )}
@@ -477,7 +479,7 @@ export default function Navbar() {
                   {/* Contact details */}
                   <div className="flex flex-col gap-3">
                     <span className="text-white/20 text-[8px] font-bold uppercase tracking-[0.4em] mb-1">Get in Touch</span>
-                    <a href="tel:+919895105012" className="flex items-center gap-2.5 text-white/50 hover:text-white transition-colors group">
+                    <a href={telLink} className="flex items-center gap-2.5 text-white/50 hover:text-white transition-colors group">
                       <Phone className="w-3.5 h-3.5 text-[#D72731]" />
                       <span className="text-[10px] font-bold tracking-[0.15em]">+91 98951 05012</span>
                     </a>
@@ -511,23 +513,23 @@ export default function Navbar() {
                       </div>
                     </div>
 
-                    {/* CTA */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModalOpen(true);
-                        closeMenu();
-                      }}
-                      className="group relative overflow-hidden rounded-full bg-white/[0.06] border border-white/[0.12] backdrop-blur-xl pl-7 pr-2 py-2 flex items-center gap-5 transition-all duration-500 hover:bg-white/10 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.3)] w-fit"
-                      aria-label="Start your project with Precise Homes"
+                    {/* CTA — Contact on WhatsApp */}
+                    <a
+                      href={waLink(CONTACT_MESSAGE)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={closeMenu}
+                      className="group relative overflow-hidden rounded-full bg-[#25D366] pl-6 pr-2 py-2 flex items-center gap-4 transition-all duration-500 hover:bg-[#1ebe5b] shadow-[0_10px_30px_rgba(37,211,102,0.35)] w-fit"
+                      aria-label={`Contact Precise Homes on WhatsApp ${SITE.phoneDisplay}`}
                     >
-                      <span className="text-white text-[9px] font-bold uppercase tracking-[0.25em]">
-                        Start a Project
+                      <WhatsAppIcon className="w-4 h-4 text-white" />
+                      <span className="text-white text-[10px] font-bold uppercase tracking-[0.22em]">
+                        Contact on WhatsApp
                       </span>
-                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
-                        <ArrowUpRight className="w-3 h-3 text-white" />
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+                        <ArrowUpRight className="w-3.5 h-3.5 text-white" />
                       </div>
-                    </button>
+                    </a>
                   </div>
                 </motion.div>
 
@@ -536,7 +538,6 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
-      <ProjectModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );
 }

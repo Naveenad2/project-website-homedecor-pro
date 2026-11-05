@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Syne, Plus_Jakarta_Sans } from "next/font/google";
-import { ArrowUpRight, MapPin, Phone, Mail, ChevronRight, Plus, Star } from "lucide-react";
+import { MapPin, Phone, Mail, ChevronRight, Plus } from "lucide-react";
+import { SpriteIcon } from "../ui/IconSprite";
+import WhatsAppIcon from "../ui/WhatsAppIcon";
+import { SITE, telLink, waLink } from "@/lib/site";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700", "800"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({
@@ -37,23 +39,27 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
 );
 
 const NAV = [
-  { label: "Home",        href: "/" },
-  { label: "About Us",    href: "/#about" },
-  { label: "Saint Gobain",href: "/saint-gobain" },
-  { label: "Fundermax",   href: "/fundermax" },
-  { label: "LG Hausys",   href: "/lg-hausys" },
-  { label: "Testimonials",href: "/#testimonials" },
-  { label: "Contact",     href: "/contact" },
+  { label: "Home",         href: "/" },
+  { label: "All Products", href: "/products" },
+  { label: "Project Films",href: "/films" },
+  { label: "Catalogues",   href: "/catalogues" },
+  { label: "Saint Gobain", href: "/saint-gobain" },
+  { label: "Fundermax",    href: "/fundermax" },
+  { label: "LG Hausys",    href: "/lg-hausys" },
+  { label: "About Us",     href: "/#about" },
+  { label: "FAQ",          href: "/#faq" },
 ];
 
 const PRODUCTS = [
-  "UPVC Windows",
-  "Shower Partitions",
-  "Glass Handrails",
-  "Exterior Cladding",
-  "Kitchen Shutters",
-  "Wall Coverings",
-  "Hi-Macs Surfaces",
+  { label: "Saint-Gobain uPVC Windows", href: "/products/saint-gobain-upvc-windows" },
+  { label: "System Aluminium Windows",  href: "/products/system-aluminium-windows" },
+  { label: "Toughened & Laminated Glass", href: "/products/toughened-glass" },
+  { label: "Shower Partitions",         href: "/products/shower-partitions" },
+  { label: "Glass Handrails",           href: "/products/glass-handrails" },
+  { label: "Lacquered Glass",           href: "/products/lacquered-glass" },
+  { label: "Fundermax HPL Cladding",    href: "/products/fundermax-hpl-cladding" },
+  { label: "iCLAD Façade Cladding",     href: "/products/iclad-cladding" },
+  { label: "Novelio Wall Coverings",    href: "/products/novelio-wall-coverings" },
 ];
 
 const SOCIALS = [
@@ -82,64 +88,7 @@ export default function Footer() {
 
   return (
     <>
-      {/* ── JSON-LD SEO ──────────────────────────────────────────────────── */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "HomeAndConstructionBusiness",
-            "@id": "https://www.precisehomes.in",
-            name: "Precise Homes",
-            alternateName: ["Precise Home Auto Care", "My Home by Saint Gobain Kochi"],
-            image: "https://www.precisehomes.in/logo.png",
-            logo: "https://www.precisehomes.in/logo.png",
-            description:
-              "Kerala's premier authorized dealer for Saint Gobain, Fundermax, and LG Hausys — offering expert glass solutions, exterior cladding, UPVC windows, and home surface products with design-to-installation support across Ernakulam and all of Kerala.",
-            address: {
-              "@type": "PostalAddress",
-              streetAddress: "Building No: 42/3405, Civil Line Road, Padivattom",
-              addressLocality: "Kochi",
-              addressRegion: "Kerala",
-              postalCode: "682024",
-              addressCountry: "IN",
-            },
-            geo: { "@type": "GeoCoordinates", latitude: 10.0128, longitude: 76.3089 },
-            telephone: "+919895105012",
-            email: "precisehomeauto@gmail.com",
-            url: "https://www.precisehomes.in",
-            priceRange: "₹₹",
-            areaServed: { "@type": "State", name: "Kerala" },
-            openingHoursSpecification: [{
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-              opens: "09:00", closes: "18:00",
-            }],
-            sameAs: [
-              "https://www.facebook.com/precisehomeauto",
-              "https://www.instagram.com/precisehomeautocare",
-              "https://www.youtube.com/@precisehomeautocare",
-            ],
-            hasOfferCatalog: {
-              "@type": "OfferCatalog",
-              name: "Home Care Products & Services",
-              itemListElement: [
-                { "@type": "Offer", itemOffered: { "@type": "Service", name: "Saint Gobain UPVC Windows Ernakulam" } },
-                { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fundermax Exterior Cladding Kerala" } },
-                { "@type": "Offer", itemOffered: { "@type": "Service", name: "LG Hausys Wall Surfaces" } },
-                { "@type": "Offer", itemOffered: { "@type": "Service", name: "Glass Handrail Systems" } },
-                { "@type": "Offer", itemOffered: { "@type": "Service", name: "Shower Partitions Kochi" } },
-              ],
-            },
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: "4.9",
-              reviewCount: "49",
-              bestRating: "5",
-            },
-          }),
-        }}
-      />
+      {/* Business structured data now lives once in app/layout.tsx */}
 
       <footer className={`relative w-full bg-[#03070b] overflow-hidden ${jakarta.className}`}>
 
@@ -210,7 +159,7 @@ export default function Footer() {
                   </div>
                 </Link>
                 <a
-                  href="tel:+919895105012"
+                  href={telLink}
                   className="group flex items-center gap-2.5 border border-white/[0.1] rounded-full px-5 py-3 hover:border-white/[0.22] transition-all duration-300"
                 >
                   <Phone className="w-3.5 h-3.5 text-white/40 group-hover:text-white/65 transition-colors" />
@@ -237,18 +186,19 @@ export default function Footer() {
               {/* Logo */}
               <Link href="/" aria-label="Precise Homes" className="block w-max">
                 <div className="relative h-12 w-40 md:h-14 md:w-48">
-                  <Image
-                    src="/logo.png"
+                  <img
+                    src="/logo-nav.webp"
                     alt="Precise Homes"
-                    fill
-                    className="object-contain object-left"
-                    priority
+                    width={360}
+                    height={229}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-contain object-left"
                   />
                 </div>
               </Link>
 
               <p className="text-white/40 text-[13px] md:text-[14px] leading-[1.9] font-medium max-w-xs">
-                Kerala's premier authorized dealer for Saint Gobain, Fundermax &amp; LG Hausys —
+                Kerala&apos;s premier authorized dealer for Saint Gobain, Fundermax &amp; LG Hausys —
                 delivering expert home care solutions from design to installation across Ernakulam &amp; beyond.
               </p>
 
@@ -267,7 +217,7 @@ export default function Footer() {
               {/* Rating mini */}
               <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3 w-fit">
                 <div className="flex gap-0.5">
-                  {[0,1,2,3,4].map(i => <Star key={i} className="w-3 h-3 fill-[#D72731] text-[#D72731]" />)}
+                  {[0,1,2,3,4].map(i => <SpriteIcon key={i} id="ph-star" className="w-3 h-3 text-[#D72731]" />)}
                 </div>
                 <div className="w-px h-4 bg-white/10" />
                 <span className={`${syne.className} text-white text-sm font-extrabold`}>4.9</span>
@@ -330,9 +280,11 @@ export default function Footer() {
               </div>
               <ul className="flex flex-col gap-3">
                 {PRODUCTS.map(p => (
-                  <li key={p} className="flex items-center gap-2.5 text-white/38 text-[13px] font-medium">
-                    <div className="w-1 h-1 rounded-full bg-white/15 shrink-0" />
-                    {p}
+                  <li key={p.href}>
+                    <Link href={p.href} className="group flex items-center gap-2.5 text-white/40 text-[13px] font-medium hover:text-white/80 transition-colors duration-300">
+                      <span className="w-1 h-1 rounded-full bg-white/15 shrink-0 group-hover:bg-[#D72731] transition-colors" />
+                      {p.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -358,12 +310,13 @@ export default function Footer() {
                   <span className="text-white/40 text-[12px] md:text-[13px] leading-[1.8] font-medium group-hover:text-white/60 transition-colors">
                     Building No: 42/3405,<br />
                     Civil Line Road, Padivattom,<br />
-                    Kochi, Ernakulam — 682024
+                    Kochi, Ernakulam — 682024<br />
+                    <span className="text-white/25">Near Azeezia Supermarket</span>
                   </span>
                 </a>
 
                 <a
-                  href="tel:+919895105012"
+                  href={telLink}
                   className="group flex items-center gap-3.5 hover:text-white/70 transition-colors duration-300"
                 >
                   <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0 group-hover:bg-[#02589F]/15 group-hover:border-[#02589F]/35 transition-all duration-300">
@@ -382,8 +335,18 @@ export default function Footer() {
                     <Mail className="w-3.5 h-3.5 text-white/35 group-hover:text-[#60b4ff] transition-colors" />
                   </div>
                   <span className="text-white/40 text-[13px] font-semibold tracking-wide group-hover:text-white/65 transition-colors">
-                    precisehomeauto@gmail.com
+                    {SITE.email}
                   </span>
+                </a>
+
+                <a
+                  href={waLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex w-fit items-center gap-2.5 rounded-full bg-[#25D366] px-4 py-2.5 text-white shadow-[0_8px_24px_rgba(37,211,102,0.3)] hover:bg-[#1ebe5b] transition-colors"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  <span className="text-[12px] font-bold tracking-wide">WhatsApp {SITE.phoneDisplay}</span>
                 </a>
               </address>
             </Reveal>
@@ -397,8 +360,7 @@ export default function Footer() {
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
                 {[
-                  { label: "Privacy Policy", href: "/privacy" },
-                  { label: "Terms", href: "/terms" },
+                  { label: "Catalogues", href: "/catalogues" },
                   { label: "Sitemap", href: "/sitemap.xml" },
                 ].map(({ label, href }, i) => (
                   <React.Fragment key={label}>
