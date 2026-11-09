@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, Film as FilmIcon } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import SectionIntro from "@/components/ui/SectionIntro";
 import FilmCard from "@/components/media/FilmCard";
 import { useFilmViewer } from "@/components/media/FilmViewer";
 import { type Film, PROJECTS, type ProjectKey } from "@/data/films";
 import { syne } from "@/lib/fonts";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function Films({ films, productNames }: { films: Film[]; productNames: Record<string, string> }) {
   const viewer = useFilmViewer();
@@ -23,7 +23,6 @@ export default function Films({ films, productNames }: { films: Film[]; productN
     films.forEach((f) => (c[f.project] = (c[f.project] ?? 0) + 1));
     return c;
   }, [films]);
-  const locations = new Set(films.map((f) => f.location)).size;
 
   // Track scroll position for arrow state + edge fades.
   useEffect(() => {
@@ -48,43 +47,14 @@ export default function Films({ films, productNames }: { films: Film[]; productN
   };
 
   return (
-    <section id="films" aria-labelledby="films-title" className={`relative w-full overflow-hidden bg-[#03070b] py-20 md:py-28 ${syne.className}`}>
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute -top-40 right-[10%] w-[640px] h-[640px] rounded-full bg-[#D72731]/[0.06] blur-[160px]" />
-        <div className="absolute bottom-0 left-[5%] w-[560px] h-[560px] rounded-full bg-[#02589F]/[0.08] blur-[160px]" />
-      </div>
-
+    <section id="films" aria-labelledby="films-title" className={`relative w-full overflow-hidden bg-[#03070b] py-20 md:py-24 ${syne.className}`}>
       <div className="relative mx-auto max-w-[1920px] px-5 md:px-10 lg:px-16 xl:px-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
-          <div className="lg:col-span-7">
-            <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE }} className="flex items-center gap-4">
-              <span className="h-[2px] w-8 bg-[#D72731]" />
-              <span className="text-[#ff6b72] text-[10px] font-bold uppercase tracking-[0.35em]">Project Films // Real Homes</span>
-            </motion.div>
-            <h2 id="films-title" className="mt-6 text-[clamp(2.2rem,5.4vw,4.4rem)] font-extrabold leading-[0.95] tracking-tighter text-white">
-              Real homes.
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] to-[#9ad0ff]">Real stories.</span>
-            </h2>
-          </div>
-          <div className="lg:col-span-5">
-            <p className="text-white/55 text-[14px] md:text-[15px] leading-relaxed font-medium">
-              Walk through Saint-Gobain uPVC windows, glass handrails, shower cubicles and Fundermax cladding we&apos;ve installed in Kaloor, Kollam, Fort Kochi and Edappally — and hear homeowners and architects in their own words.
-            </p>
-            <div className="mt-5 flex items-center gap-6 text-white">
-              <div>
-                <p className="text-2xl font-bold">{films.length}</p>
-                <p className="text-white/35 text-[9px] font-bold uppercase tracking-[0.28em]">Films</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{locations}</p>
-                <p className="text-white/35 text-[9px] font-bold uppercase tracking-[0.28em]">Locations</p>
-              </div>
-              <Link href="/films" className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-white/70 hover:text-white hover:border-white/35 transition-colors">
-                <FilmIcon className="w-3.5 h-3.5" /> All films <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <SectionIntro id="films-title" kicker="Project Films // Kerala" title="Real homes," accent="real stories.">
+          <p>Homeowners, architects and our team — filmed at projects in Kaloor, Kollam, Fort Kochi and Edappally.</p>
+          <Link href="/films" className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/60 hover:text-white transition-colors">
+            All {films.length} films <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </SectionIntro>
 
         {/* Filters + rail arrows */}
         <div className="mt-10 flex items-center gap-4">

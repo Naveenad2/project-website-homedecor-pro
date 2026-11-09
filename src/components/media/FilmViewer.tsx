@@ -17,7 +17,7 @@ import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
 import { type Film, filmMedia } from "@/data/films";
 import { absoluteUrl, formatDuration, waLink } from "@/lib/site";
 import { mediaBus, useBackButtonClose, useScrollLock } from "@/lib/client-utils";
-import { jakarta } from "@/lib/fonts";
+import { syne } from "@/lib/fonts";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -262,7 +262,7 @@ function FilmViewer({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className={`fixed inset-0 z-[300] bg-[#020407] overscroll-contain ${jakarta.className}`}
+      className={`fixed inset-0 z-[300] bg-[#020407] overscroll-contain ${syne.className}`}
     >
       {/* Ambient backdrop (desktop) */}
       <div className="absolute inset-0 hidden lg:block overflow-hidden" aria-hidden="true">
@@ -502,7 +502,6 @@ function FilmViewer({
               </div>
             </div>
           )}
-          <p className="mt-8 text-white/25 text-[10px] leading-relaxed">Space play/pause · M mute · ↑ ↓ next film · Esc close</p>
         </motion.aside>
 
         {/* Desktop prev / next */}

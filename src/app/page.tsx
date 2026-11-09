@@ -5,7 +5,6 @@ import Hero from "@/components/sections/Hero";
 import Products from "@/components/sections/Products";
 import Films from "@/components/sections/Films";
 import About from "@/components/sections/About";
-import Ecosystem from "@/components/sections/Ecosystem";
 import Gallery from "@/components/sections/Gallery";
 import Catalogues from "@/components/sections/Catalogues";
 import Testimonials from "@/components/sections/Testimonials";
@@ -73,13 +72,12 @@ export default function Home() {
       <JsonLd data={pageLd} />
       <Navbar />
       <Hero />
+      <About />
       <Products />
       <Films films={FILMS} productNames={PRODUCT_NAMES} />
-      <About />
-      <Ecosystem />
       <Gallery />
-      <Catalogues />
       <Testimonials />
+      <Catalogues />
       <FAQ faqs={HOME_FAQS} />
       <Footer />
     </main>

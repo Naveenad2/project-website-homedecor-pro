@@ -1,5 +1,7 @@
 "use client";
 
+import ClipReveal from "@/components/ui/ClipReveal";
+
 import React, { useRef, useState } from "react";
 import { Montserrat, Inter } from "next/font/google";
 import {
@@ -161,17 +163,9 @@ function TextReveal({
   className?: string;
 }) {
   return (
-    <div className="overflow-hidden">
-      <motion.div
-        initial={{ y: "105%" }}
-        whileInView={{ y: "0%" }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 1.1, delay, ease: E }}
-        className={className}
-      >
-        {children}
-      </motion.div>
-    </div>
+    <ClipReveal delay={delay} className={className}>
+      {children}
+    </ClipReveal>
   );
 }
 

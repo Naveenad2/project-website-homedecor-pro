@@ -58,14 +58,14 @@ export default function FilmCard({
   const videoRef = useRef<HTMLVideoElement>(null);
   const m = filmMedia(film.slug);
   useInViewPreview(videoRef, m.preview, 0.3);
-  const chips = (productNames ? film.products.map((p) => productNames[p]).filter(Boolean) : []).slice(0, 2);
+  const featuring = (productNames ? film.products.map((p) => productNames[p]).filter(Boolean) : []).slice(0, 2).join(", ");
 
   return (
     <button
       type="button"
       onClick={onOpen}
-      aria-label={`Play film: ${film.title}, ${film.location}, ${formatDuration(film.duration)}`}
-      className="group relative block w-full aspect-[9/16] overflow-hidden rounded-[22px] bg-[#0b1118] ring-1 ring-white/10 text-left transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D72731]"
+      aria-label={`Play film: ${film.title}, ${film.location}, ${formatDuration(film.duration)}${featuring ? ` — ${featuring}` : ""}`}
+      className="@container group relative block w-full aspect-[9/16] overflow-hidden rounded-[22px] bg-[#0b1118] ring-1 ring-white/10 text-left transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D72731]"
     >
       <img
         src={m.poster}
@@ -89,11 +89,12 @@ export default function FilmCard({
 
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03070b] via-[#03070b]/25 to-[#03070b]/10" />
 
-      <span className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
-        <span className="rounded-full bg-black/45 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white">
+      {/* Narrow cards (2-up on phones) show only the running time, so nothing wraps or clips */}
+      <span className="absolute top-3 left-3 right-3 flex items-start justify-end @[200px]:justify-between gap-2">
+        <span className="hidden @[200px]:block min-w-0 truncate rounded-full bg-black/45 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white">
           {film.kind}
         </span>
-        <span className="rounded-full bg-black/45 backdrop-blur-md border border-white/15 px-2 py-1 text-[10px] font-bold tabular-nums text-white/90">
+        <span className="shrink-0 rounded-full bg-black/45 backdrop-blur-md border border-white/15 px-2 py-1 text-[10px] font-bold tabular-nums text-white/90">
           {formatDuration(film.duration)}
         </span>
       </span>
@@ -104,20 +105,11 @@ export default function FilmCard({
         </span>
       </span>
 
-      <span className="absolute inset-x-0 bottom-0 p-4">
-        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ff8a8f]">
-          <MapPin className="w-3 h-3" /> {film.location}
+      <span className="absolute inset-x-0 bottom-0 p-3 @[200px]:p-4">
+        <span className="flex items-center gap-1 text-[9px] @[200px]:text-[10px] font-bold uppercase tracking-[0.14em] @[200px]:tracking-[0.2em] text-[#ff8a8f]">
+          <MapPin className="w-3 h-3 shrink-0" /> <span className="truncate">{film.location}</span>
         </span>
-        <span className="mt-1.5 block text-white text-[15px] sm:text-base font-bold leading-snug">{film.title}</span>
-        {chips.length > 0 && (
-          <span className="mt-2.5 flex flex-wrap gap-1.5">
-            {chips.map((c) => (
-              <span key={c} className="rounded-full bg-white/10 border border-white/15 px-2 py-0.5 text-[9.5px] font-semibold text-white/80">
-                {c}
-              </span>
-            ))}
-          </span>
-        )}
+        <span className="mt-1.5 block text-white text-[14px] @[200px]:text-[15px] @[260px]:text-base font-bold leading-snug">{film.title}</span>
       </span>
     </button>
   );

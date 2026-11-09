@@ -61,9 +61,9 @@ export default function FilmsPage() {
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-8">
             <p className="text-[#ff6b72] text-[10px] font-bold uppercase tracking-[0.35em]">Project Films // Real Homes</p>
-            <h1 className="mt-5 text-[clamp(2.3rem,6vw,5rem)] font-extrabold leading-[0.95] tracking-tighter">
+            <h1 className="mt-5 text-[clamp(2.3rem,6vw,5rem)] font-bold leading-[0.95] tracking-tighter">
               Watch our work
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] to-[#9ad0ff]">across Kerala.</span>
+              <span className="block text-[#02589F] brightness-[1.35] saturate-[1.6]">across Kerala.</span>
             </h1>
           </div>
           <div className="lg:col-span-4">
@@ -80,7 +80,7 @@ export default function FilmsPage() {
       {groups.map((g) => (
         <section key={g.key} id={g.key} aria-labelledby={`films-${g.key}`} className={`${CONTAINER} py-10 md:py-12 scroll-mt-24`}>
           <div className="mb-6 flex items-end justify-between gap-4 border-t border-white/[0.08] pt-8">
-            <h2 id={`films-${g.key}`} className="text-2xl md:text-4xl font-extrabold tracking-tight">
+            <h2 id={`films-${g.key}`} className="text-2xl md:text-4xl font-bold tracking-tight">
               {g.label}
             </h2>
             <p className="text-white/40 text-[12px] font-semibold">

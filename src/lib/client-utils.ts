@@ -68,6 +68,78 @@ export function useLowMotion(): boolean {
   return useSyncExternalStore(subscribeLowMotion, prefersLowMotionOrData, () => false);
 }
 
+// ─── Automatic sound ─────────────────────────────────────────────────────────
+// Browsers never let a page *start* audio before the visitor interacts with it.
+// So: try to play with sound; if refused, play muted and switch sound on at the
+// visitor's first tap / click / key press anywhere on the page. A visitor who
+// mutes on purpose is remembered and never auto-unmuted again.
+const SOUND_PREF_KEY = "ph-sound";
+
+export function soundPreference(): "on" | "off" | null {
+  try {
+    const v = window.localStorage.getItem(SOUND_PREF_KEY);
+    return v === "on" || v === "off" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setSoundPreference(value: "on" | "off") {
+  try {
+    window.localStorage.setItem(SOUND_PREF_KEY, value);
+  } catch {
+    /* storage unavailable (private mode) */
+  }
+}
+
+/** Start playback, with sound if the browser allows it, otherwise muted. Resolves to whether sound is on. */
+export async function playWithSoundIfAllowed(v: HTMLVideoElement): Promise<boolean> {
+  if (soundPreference() !== "off") {
+    v.muted = false;
+    try {
+      await v.play();
+      return true;
+    } catch {
+      /* autoplay with sound refused — fall back to muted */
+    }
+  }
+  v.muted = true;
+  try {
+    await v.play();
+  } catch {
+    /* even muted autoplay refused (rare: Data Saver / OS power saving) */
+  }
+  return false;
+}
+
+const ACTIVATION_EVENTS = ["pointerdown", "touchend", "keydown", "click"] as const;
+
+/**
+ * Unmute `getVideo()` at the first real user activation (tap/click/key) on the page.
+ * `canUnmute` lets the caller skip it (e.g. the video is scrolled out of view).
+ * Returns a cleanup function.
+ */
+export function armSoundOnFirstInteraction(getVideo: () => HTMLVideoElement | null, canUnmute: () => boolean = () => true) {
+  const detach = () => ACTIVATION_EVENTS.forEach((e) => document.removeEventListener(e, handler, true));
+  function handler(e: Event) {
+    if (soundPreference() === "off") return detach();
+    const v = getVideo();
+    if (!v || !v.muted) return detach();
+    if (!canUnmute()) return;
+    if (e instanceof KeyboardEvent && (e.key === "Escape" || e.key === "Tab")) return;
+    // Taps on the player's own sound controls are handled by those controls.
+    if (e.target instanceof Element && e.target.closest("[data-sound-control]")) return;
+    v.muted = false;
+    v.volume = 1;
+    v.play().catch(() => {
+      v.muted = true;
+    });
+    detach();
+  }
+  ACTIVATION_EVENTS.forEach((e) => document.addEventListener(e, handler, { capture: true, passive: true }));
+  return detach;
+}
+
 export function safeSession(key: string, value?: string): string | null {
   try {
     if (value === undefined) return window.sessionStorage.getItem(key);

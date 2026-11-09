@@ -53,6 +53,26 @@ body {
   }
 }
 
+/* Desktop hero background: slow, GPU-only drift */
+@keyframes kenburns {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+/* Desktop hero scroll cue */
+@keyframes scrollcue {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
 /* "Sound on" equaliser bars */
 @keyframes eq {
   0%,

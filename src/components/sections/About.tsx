@@ -5,6 +5,7 @@ import React from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import ClipReveal from "@/components/ui/ClipReveal";
 import {
   ArrowUpRight,
   Plus,
@@ -73,32 +74,6 @@ const MARQUEE_NAMES = [
   "3M",
 ];
 
-const SERVICES = [
-  {
-    img: IMG.glass,
-    brand: "Saint Gobain",
-    title: "Glass Solutions",
-    desc: "Premium glass for windows, façades, partitions, and shower enclosures — certified Saint Gobain quality.",
-    color: "#02589F",
-    href: "/saint-gobain",
-  },
-  {
-    img: IMG.exterior,
-    brand: "Fundermax",
-    title: "Exterior Cladding",
-    desc: "Weather-resistant Fundermax panels that protect and beautify your building's exterior for decades.",
-    color: "#D72731",
-    href: "/fundermax",
-  },
-  {
-    img: IMG.surface,
-    brand: "LG Hausys",
-    title: "Home Surfaces",
-    desc: "LG Hausys surface materials that combine elegance, durability, and innovation for every interior.",
-    color: "#02589F",
-    href: "/lg-hausys",
-  },
-];
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
 function useCounter(target: number, inView: boolean, delay = 0) {
@@ -233,24 +208,18 @@ export default function AboutUs() {
             <div className="flex flex-col gap-0.5">
               {[
                 { text: "Precise Home.", color: "text-white" },
-                {
-                  text: "Your Trusted",
-                  color:
-                    "text-transparent bg-clip-text bg-gradient-to-r from-[#02589F] to-[#00aaff]",
-                },
+                { text: "Your Trusted", color: "text-[#02589F] brightness-[1.35] saturate-[1.6]" },
                 { text: "Home Agency.", color: "text-white" },
               ].map(({ text, color }, i) => (
-                <div key={i} className="overflow-hidden">
-                  <motion.h2
-                    initial={{ y: "105%", opacity: 0 }}
-                    whileInView={{ y: "0%", opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.15, delay: i * 0.1, ease: E }}
-                    className={`font-[family-name:var(--font-space)] text-[clamp(1.8rem,4vw,3rem)] font-bold leading-[1.0] tracking-tight ${color}`}
-                  >
-                    {text}
-                  </motion.h2>
-                </div>
+                <ClipReveal
+                  key={i}
+                  as="h2"
+                  delay={i * 0.1}
+                  duration={1.15}
+                  className={`font-[family-name:var(--font-space)] text-[clamp(1.8rem,4vw,3rem)] font-bold leading-[1.0] tracking-tight ${color}`}
+                >
+                  {text}
+                </ClipReveal>
               ))}
             </div>
 
@@ -647,77 +616,6 @@ export default function AboutUs() {
         </div>
 
         {/* ═══════════════════════════════════════════════
-            5. SERVICES — 3 image-topped cards
-        ═══════════════════════════════════════════════ */}
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-5">
-          {SERVICES.map((svc, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 38 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.05, delay: i * 0.11, ease: E }}
-              className="group border border-white/[0.08] rounded-2xl md:rounded-3xl overflow-hidden hover:border-white/[0.18] transition-colors duration-500"
-            >
-              {/* Top image strip */}
-              <div className="relative h-44 overflow-hidden">
-                <img
-                  src={svc.img}
-                  alt={`${svc.title} — ${svc.brand} by Precise Homes Kerala`}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-[2.2s] ease-[0.22,1,0.36,1]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#03070b] via-[#03070b]/20 to-transparent" />
-                <div
-                  className="absolute top-4 right-4 font-[family-name:var(--font-space)] text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${svc.color}28`,
-                    color: svc.color === "#02589F" ? "#60b4ff" : "#ff8080",
-                    border: `1px solid ${svc.color}40`,
-                  }}
-                >
-                  {svc.brand}
-                </div>
-              </div>
-
-              {/* Card body */}
-              <div className="p-6 md:p-7">
-                <h4 className="font-[family-name:var(--font-space)] text-xl md:text-2xl font-bold text-white mb-3 leading-tight">
-                  {svc.title}
-                </h4>
-                <p className="font-[family-name:var(--font-jakarta)] text-white/50 text-[13px] leading-[1.8] mb-6">
-                  {svc.desc}
-                </p>
-                <Link
-                  href={svc.href}
-                  aria-label={`View ${svc.title} service by Precise Homes`}
-                  className="flex items-center gap-2.5 group/cta cursor-pointer w-max"
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover/cta:scale-110"
-                    style={{
-                      backgroundColor: `${svc.color}22`,
-                      border: `1px solid ${svc.color}35`,
-                    }}
-                  >
-                    <ArrowUpRight
-                      className="w-3.5 h-3.5 transform group-hover/cta:rotate-45 transition-transform duration-300"
-                      style={{
-                        color: svc.color === "#02589F" ? "#60b4ff" : "#ff6b6b",
-                      }}
-                    />
-                  </div>
-                  <span className="font-[family-name:var(--font-space)] text-white/35 text-[10px] font-bold uppercase tracking-[0.2em] group-hover/cta:text-white/55 transition-colors">
-                    View Service
-                  </span>
-                </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* ═══════════════════════════════════════════════
             6. CTA — Full-bleed parallax image
         ═══════════════════════════════════════════════ */}
         <motion.div
@@ -774,28 +672,23 @@ export default function AboutUs() {
                 </span>
               </div>
 
-              <div className="overflow-hidden mb-1">
-                <motion.h3
-                  initial={{ opacity: 0, y: "105%" }}
-                  whileInView={{ opacity: 1, y: "0%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.15, ease: E }}
-                  className="font-[family-name:var(--font-space)] text-[clamp(2rem,4vw,3.2rem)] font-bold text-white leading-[0.95] tracking-tight uppercase"
-                >
-                  Transform Your
-                </motion.h3>
-              </div>
-              <div className="overflow-hidden mb-7">
-                <motion.h3
-                  initial={{ opacity: 0, y: "105%" }}
-                  whileInView={{ opacity: 1, y: "0%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.15, delay: 0.1, ease: E }}
-                  className={`font-[family-name:var(--font-fraunces)] text-[clamp(2rem,4vw,3.2rem)] font-bold leading-[0.95] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#02589F] to-[#D72731] italic normal-case`}
-                >
-                  home today.
-                </motion.h3>
-              </div>
+              <ClipReveal
+                as="h3"
+                maskClassName="mb-1"
+                duration={1.15}
+                className="font-[family-name:var(--font-space)] text-[clamp(2rem,4vw,3.2rem)] font-bold text-white leading-[0.95] tracking-tight uppercase"
+              >
+                Transform Your
+              </ClipReveal>
+              <ClipReveal
+                as="h3"
+                maskClassName="mb-7 pb-1"
+                delay={0.1}
+                duration={1.15}
+                className="font-[family-name:var(--font-fraunces)] text-[clamp(2rem,4vw,3.2rem)] font-bold leading-[0.95] tracking-tight text-[#02589F] brightness-[1.35] saturate-[1.6] italic normal-case"
+              >
+                home today.
+              </ClipReveal>
               <p className="font-[family-name:var(--font-jakarta)] text-white/50 text-[14px] md:text-[15px] leading-relaxed max-w-md">
                 Contact us for a free on-site consultation. We&apos;ll visit your
                 space and craft a proposal tailored precisely to your vision and

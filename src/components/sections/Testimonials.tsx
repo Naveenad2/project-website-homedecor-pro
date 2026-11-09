@@ -5,6 +5,7 @@ import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import { motion, useInView } from "framer-motion";
 import { Quote, ArrowUpRight, MapPin } from "lucide-react";
 import { SpriteIcon } from "../ui/IconSprite";
+import ClipReveal from "../ui/ClipReveal";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700", "800"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({
@@ -252,28 +253,12 @@ export default function Testimonials() {
           <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
             {/* Title */}
             <div>
-              <div className="overflow-hidden mb-1">
-                <motion.h2
-                  initial={{ y: "105%" }}
-                  whileInView={{ y: "0%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.05, ease: E }}
-                  className={`${syne.className} text-[clamp(2.2rem,5.5vw,4rem)] font-extrabold text-white leading-[0.95] tracking-tighter`}
-                >
-                  What Our Clients
-                </motion.h2>
-              </div>
-              <div className="overflow-hidden">
-                <motion.h2
-                  initial={{ y: "105%" }}
-                  whileInView={{ y: "0%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.05, delay: 0.09, ease: E }}
-                  className={`${syne.className} text-[clamp(2.2rem,5.5vw,4rem)] font-extrabold leading-[0.95] tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#02589F] to-[#00aaff]`}
-                >
-                  Say About Us.
-                </motion.h2>
-              </div>
+              <ClipReveal as="h2" maskClassName="mb-1" duration={1.05} className={`${syne.className} text-[clamp(2.2rem,5.5vw,4rem)] font-bold text-white leading-[0.95] tracking-tighter`}>
+                What Our Clients
+              </ClipReveal>
+              <ClipReveal as="h2" maskClassName="pb-1" delay={0.09} duration={1.05} className={`${syne.className} text-[clamp(2.2rem,5.5vw,4rem)] font-bold leading-[0.95] tracking-tighter text-[#02589F] brightness-[1.35] saturate-[1.6]`}>
+                Say About Us.
+              </ClipReveal>
             </div>
 
             {/* Rating summary card */}
@@ -348,48 +333,6 @@ export default function Testimonials() {
         <MarqueeRow items={ROW2} reverse speed={64} />
       </motion.div>
 
-      {/* ── Bottom strip ── */}
-      <div className="relative z-10 max-w-[1920px] mx-auto px-5 md:px-10 lg:px-16 xl:px-20">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: E }}
-          className="mt-10 md:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-t border-white/[0.07] pt-8"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex -space-x-2.5">
-              {["K","R","D","V","S"].map((l, i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-[#03070b]"
-                  style={{ background: i % 2 === 0 ? "#02589F35" : "#D7273135", outline: `1px solid ${i % 2 === 0 ? "#02589F40" : "#D7273140"}` }}
-                >
-                  {l}
-                </div>
-              ))}
-            </div>
-            <div>
-              <div className="text-white text-[13px] font-semibold">1,000+ Happy Families</div>
-              <div className="text-white/35 text-[11px] mt-0.5">Ernakulam&apos;s most trusted home partner</div>
-            </div>
-          </div>
-
-          <a
-            href="https://maps.google.com/?q=Precise+Homes+Padivattom+Kochi"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-3 border border-white/[0.09] hover:border-white/[0.2] rounded-full pl-6 pr-2 py-2 transition-all duration-400"
-          >
-            <span className="text-white/45 text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-white/70 transition-colors">
-              Read All Reviews
-            </span>
-            <div className="w-8 h-8 rounded-full bg-[#D72731] flex items-center justify-center group-hover:rotate-45 transition-transform duration-400 shadow-[0_0_16px_rgba(215,39,49,0.4)]">
-              <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-            </div>
-          </a>
-        </motion.div>
-      </div>
     </section>
   );
 }

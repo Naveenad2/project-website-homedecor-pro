@@ -18,8 +18,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  LayoutGrid,
-  Film,
 } from "lucide-react";
 import { LD_ID, waLink } from "@/lib/site";
 
@@ -267,20 +265,6 @@ function MagneticButton({
   );
 }
 
-// ─── Film Perforation Strip ───────────────────────────────────────────────────
-function Perforations() {
-  return (
-    <div className="flex gap-[10px] px-2 bg-[#080d14] py-[6px] overflow-hidden w-full">
-      {Array.from({ length: 80 }).map((_, i) => (
-        <div
-          key={i}
-          className="shrink-0 w-5 h-[14px] rounded-[2px] bg-white/[0.06] border border-white/[0.08]"
-        />
-      ))}
-    </div>
-  );
-}
-
 // ─── Gallery Card (3-D tilt + scan-line + corner marks) ───────────────────────
 function GalleryCard({
   item,
@@ -460,118 +444,6 @@ function GalleryCard({
         />
       ))}
     </motion.article>
-  );
-}
-
-// ─── Filmstrip View ───────────────────────────────────────────────────────────
-function Filmstrip({
-  items,
-  onOpen,
-}: {
-  items: GalleryItem[];
-  onOpen: (i: GalleryItem) => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollL, setScrollL] = useState(0);
-
-  const filmW = (span: Span) =>
-    span === "wide" || span === "hero" ? 520 : span === "tall" ? 220 : 320;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="relative overflow-hidden rounded-none border-y border-white/10"
-      role="region"
-      aria-label="Project filmstrip view"
-    >
-      <Perforations />
-      {/* Gradient edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#03070b] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#03070b] to-transparent z-10 pointer-events-none" />
-
-      <div
-        ref={ref}
-        className={`flex gap-3 overflow-x-auto py-3 px-6 ${dragging ? "cursor-grabbing select-none" : "cursor-grab"}`}
-        style={{ scrollbarWidth: "none" }}
-        onMouseDown={(e) => {
-          setDragging(true);
-          setStartX(e.pageX - (ref.current?.offsetLeft ?? 0));
-          setScrollL(ref.current?.scrollLeft ?? 0);
-        }}
-        onMouseMove={(e) => {
-          if (!dragging || !ref.current) return;
-          e.preventDefault();
-          ref.current.scrollLeft =
-            scrollL - (e.pageX - ref.current.offsetLeft - startX) * 2;
-        }}
-        onMouseUp={() => setDragging(false)}
-        onMouseLeave={() => setDragging(false)}
-      >
-        {items.map((item, idx) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: idx * 0.025, ease: EASE }}
-            className="relative shrink-0 h-[340px] overflow-hidden group cursor-pointer"
-            style={{ width: filmW(item.span) }}
-            onClick={() => !dragging && onOpen(item)}
-            role="button"
-            aria-label={`View ${item.title}`}
-          >
-            <img
-              src={item.src}
-              alt={item.alt}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#03070b]/80 via-transparent to-transparent" />
-
-            {/* Scan line on hover */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-              <motion.div
-                className="absolute left-0 right-0 h-[1px] bg-[#D72731]/70 shadow-[0_0_10px_rgba(215,39,49,0.7)]"
-                animate={{ top: ["0%", "100%"] }}
-                transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
-              />
-            </div>
-
-            {/* Info */}
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <p className="text-[#D72731] text-[7px] font-bold uppercase tracking-[0.4em]">
-                {item.tag}
-              </p>
-              <p className="text-white font-bold text-sm leading-tight">
-                {item.title}
-              </p>
-              <p className="text-white/40 text-[8px] mt-0.5">
-                {item.brand} · {item.location}
-              </p>
-            </div>
-
-            {/* Index */}
-            <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/50 border border-white/10 flex items-center justify-center">
-              <span className="text-white/40 text-[8px] font-bold">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <Perforations />
-      <p
-        className="text-center text-white/20 text-[9px] uppercase tracking-[0.4em] font-bold py-2"
-        aria-hidden="true"
-      >
-        ← Drag to Explore →
-      </p>
-    </motion.div>
   );
 }
 
@@ -845,7 +717,7 @@ function MarqueeTicker() {
 // ─── Main Gallery Section ─────────────────────────────────────────────────────
 export default function Gallery() {
   const [activeCat, setActiveCat] = useState("ALL");
-  const [viewMode, setViewMode] = useState<"grid" | "film">("grid");
+  const [showAll, setShowAll] = useState(false);
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -1013,18 +885,16 @@ export default function Gallery() {
           </div>
         </header>
 
-        {/* ── Controls: Filter + View Mode ── */}
+        {/* ── Category filters ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.0, delay: 0.6, ease: EASE }}
-          className="flex flex-wrap items-center gap-3 mb-10"
-          role="toolbar"
-          aria-label="Gallery filters and view mode"
+          className="-mx-5 px-5 sm:mx-0 sm:px-0 flex items-center gap-3 mb-10 overflow-x-auto no-scrollbar"
         >
           {/* Category pills */}
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex shrink-0 sm:shrink sm:flex-wrap items-center gap-2"
             role="group"
             aria-label="Filter by category"
           >
@@ -1035,11 +905,11 @@ export default function Gallery() {
                   key={cat.key}
                   onClick={() => {
                     setActiveCat(cat.key);
-                    setViewMode("grid"); // switching category returns to the grid
+                    setShowAll(false);
                   }}
                   aria-pressed={active}
                   aria-label={`Filter: ${cat.label} (${cat.count} projects)`}
-                  className={`relative flex items-center gap-2 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full border transition-all duration-400 ${
+                  className={`relative flex shrink-0 items-center gap-2 px-4 py-2.5 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full border transition-all duration-400 ${
                     active
                       ? "bg-[#D72731] border-[#D72731] text-white shadow-[0_0_24px_rgba(215,39,49,0.35)]"
                       : "bg-white/5 border-white/10 text-white/45 hover:border-white/25 hover:text-white/75"
@@ -1059,30 +929,6 @@ export default function Gallery() {
           {/* Spacer */}
           <div className="flex-1 hidden md:block" />
 
-          {/* View mode toggle */}
-          <div
-            className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1"
-            role="group"
-            aria-label="View mode"
-          >
-            {[
-              { mode: "grid" as const, Icon: LayoutGrid, label: "Grid view" },
-              { mode: "film" as const, Icon: Film, label: "Filmstrip view" },
-            ].map(({ mode, Icon, label }) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                aria-pressed={viewMode === mode}
-                aria-label={label}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === mode ? "bg-[#D72731] shadow-[0_0_12px_rgba(215,39,49,0.4)]" : "hover:bg-white/10"}`}
-              >
-                <Icon
-                  className={`w-3.5 h-3.5 ${viewMode === mode ? "text-white" : "text-white/40"}`}
-                />
-              </button>
-            ))}
-          </div>
-
           {/* Count */}
           <span className="text-white/20 text-[9px] uppercase tracking-[0.4em] font-bold hidden md:block">
             {filtered.length} Items
@@ -1091,39 +937,43 @@ export default function Gallery() {
 
         {/* ── Gallery Display ── */}
         <AnimatePresence mode="wait">
-          {viewMode === "grid" ? (
-            <motion.div
-              key={`grid-${activeCat}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
-              style={{ gridAutoRows: "280px", gridAutoFlow: "dense" }}
-              role="list"
-              aria-label={`${activeCat === "ALL" ? "All projects" : activeCat} gallery`}
-            >
-              {filtered.map((item, idx) => (
-                <GalleryCard
-                  key={item.id}
-                  item={item}
-                  index={idx}
-                  onOpen={openLightbox}
-                />
-              ))}
-            </motion.div>
-          ) : (
-            <Filmstrip
-              key={`film-${activeCat}`}
-              items={filtered}
-              onOpen={openLightbox}
-            />
-          )}
+          <motion.div
+            key={`grid-${activeCat}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
+            style={{ gridAutoRows: "280px", gridAutoFlow: "dense" }}
+            role="list"
+            aria-label={`${activeCat === "ALL" ? "All projects" : activeCat} gallery`}
+          >
+            {(showAll ? filtered : filtered.slice(0, 9)).map((item, idx) => (
+              <GalleryCard
+                key={item.id}
+                item={item}
+                index={idx}
+                onOpen={openLightbox}
+              />
+            ))}
+          </motion.div>
         </AnimatePresence>
 
-        {/* ── SEO rich text (visually subtle, crawlable) ── */}
+        {!showAll && filtered.length > 9 && (
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="rounded-full border border-white/15 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.22em] text-white/75 hover:text-white hover:border-white/35 transition-colors"
+            >
+              Show all {filtered.length} projects
+            </button>
+          </div>
+        )}
+
+        {/* ── About our work (readable, not hidden) ── */}
         <div className="mt-16 pt-10 border-t border-white/5">
-          <p className="text-white/15 text-[10px] leading-[1.9] max-w-4xl font-medium">
+          <p className="text-white/40 text-[12px] leading-[1.9] max-w-4xl font-medium">
             Precise Homes is an authorized dealer and installation expert for{" "}
             <em>Saint-Gobain glass solutions</em>,{" "}
             <em>Fundermax HPL exterior cladding</em>, and{" "}

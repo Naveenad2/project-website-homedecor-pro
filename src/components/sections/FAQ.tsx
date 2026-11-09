@@ -37,7 +37,7 @@ export default function FAQ({
               <span className="h-[2px] w-8 bg-[#D72731]" />
               <span className="text-[#ff6b72] text-[10px] font-bold uppercase tracking-[0.35em]">{kicker}</span>
             </div>
-            <h2 id={`${id}-title`} className="mt-6 text-[clamp(2rem,4.2vw,3.4rem)] font-extrabold leading-[0.98] tracking-tighter text-white">
+            <h2 id={`${id}-title`} className="mt-6 text-[clamp(2rem,4.2vw,3.4rem)] font-bold leading-[0.98] tracking-tighter text-white">
               {title}
             </h2>
             <p className="mt-5 text-white/50 text-[14px] leading-relaxed max-w-sm font-medium">

@@ -99,9 +99,9 @@ export default async function ProductPage({ params }: Props) {
                 {categoryLabel(p.category)}
               </Link>
             </div>
-            <h1 className="mt-5 text-[clamp(2.2rem,5.6vw,4.6rem)] font-extrabold leading-[0.96] tracking-tighter">
+            <h1 className="mt-5 text-[clamp(2.2rem,5.6vw,4.6rem)] font-bold leading-[0.96] tracking-tighter">
               {p.name}
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] to-[#9ad0ff]">in Kochi &amp; Kerala</span>
+              <span className="block text-[#02589F] brightness-[1.35] saturate-[1.6]">in Kochi &amp; Kerala</span>
             </h1>
             <p className="mt-5 text-white/80 text-lg md:text-xl font-semibold leading-snug max-w-2xl">{p.tagline}</p>
             <p className="mt-3 text-white/55 text-[15px] leading-relaxed max-w-2xl">{p.summary}</p>
@@ -134,7 +134,7 @@ export default async function ProductPage({ params }: Props) {
       <section aria-labelledby="overview-title" className={`${CONTAINER} py-12 md:py-16 border-t border-white/[0.07]`}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           <div className="lg:col-span-5">
-            <h2 id="overview-title" className="text-2xl md:text-4xl font-extrabold tracking-tight">
+            <h2 id="overview-title" className="text-2xl md:text-4xl font-bold tracking-tight">
               Why choose {p.name}?
             </h2>
             <div className="mt-5 space-y-4 text-white/60 text-[15px] leading-relaxed">
@@ -162,7 +162,7 @@ export default async function ProductPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           {p.specs && (
             <div className="lg:col-span-7">
-              <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Specifications</h2>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight">Specifications</h2>
               <dl className="mt-5 divide-y divide-white/[0.08] rounded-2xl border border-white/[0.08] overflow-hidden">
                 {p.specs.map((s) => (
                   <div key={s.label} className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-6 px-5 py-4 bg-white/[0.02]">
@@ -174,7 +174,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
           )}
           <div className={p.specs ? "lg:col-span-5" : "lg:col-span-12"}>
-            <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Where it&apos;s used</h2>
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight">Where it&apos;s used</h2>
             <ul className="mt-5 flex flex-wrap gap-2">
               {p.applications.map((a) => (
                 <li key={a} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-[13px] font-semibold text-white/75">
@@ -199,7 +199,7 @@ export default async function ProductPage({ params }: Props) {
       {films.length > 0 && (
         <section aria-labelledby="films-title" className={`${CONTAINER} py-12 md:py-16 border-t border-white/[0.07]`}>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
-            <h2 id="films-title" className="text-2xl md:text-4xl font-extrabold tracking-tight">
+            <h2 id="films-title" className="text-2xl md:text-4xl font-bold tracking-tight">
               See it in real homes
             </h2>
             <Link href="/films" className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/55 hover:text-white">
@@ -213,7 +213,7 @@ export default async function ProductPage({ params }: Props) {
       {/* ── Brochures ─────────────────────────────────────────────────── */}
       {catalogues.length > 0 && (
         <section aria-labelledby="brochures-title" className={`${CONTAINER} py-12 md:py-16 border-t border-white/[0.07]`}>
-          <h2 id="brochures-title" className="text-2xl md:text-4xl font-extrabold tracking-tight mb-8">
+          <h2 id="brochures-title" className="text-2xl md:text-4xl font-bold tracking-tight mb-8">
             Brochures &amp; catalogues
           </h2>
           <CatalogueLibrary catalogues={catalogues} />
@@ -224,7 +224,7 @@ export default async function ProductPage({ params }: Props) {
 
       {/* ── Related ───────────────────────────────────────────────────── */}
       <section aria-labelledby="related-title" className={`${CONTAINER} pb-20 pt-4`}>
-        <h2 id="related-title" className="text-2xl md:text-4xl font-extrabold tracking-tight mb-6">
+        <h2 id="related-title" className="text-2xl md:text-4xl font-bold tracking-tight mb-6">
           You may also like
         </h2>
         <ProductGrid products={[...related, ...more].map(toProductCard)} />

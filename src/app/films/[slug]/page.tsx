@@ -86,7 +86,7 @@ export default async function FilmPage({ params }: Props) {
                 <Clock className="w-3 h-3" /> {formatDuration(f.duration)}
               </span>
             </div>
-            <h1 className="mt-5 text-[clamp(2rem,4.6vw,3.8rem)] font-extrabold leading-[1] tracking-tighter">{f.title}</h1>
+            <h1 className="mt-5 text-[clamp(2rem,4.6vw,3.8rem)] font-bold leading-[1] tracking-tighter">{f.title}</h1>
             <p className="mt-5 text-white/60 text-[16px] leading-relaxed max-w-2xl">{f.description}</p>
 
             <div className="mt-7">
@@ -124,14 +124,14 @@ export default async function FilmPage({ params }: Props) {
 
       {sameProject.length > 0 && (
         <section aria-labelledby="same-project" className={`${CONTAINER} py-10 border-t border-white/[0.07]`}>
-          <h2 id="same-project" className="text-2xl md:text-3xl font-extrabold tracking-tight mb-6">
+          <h2 id="same-project" className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
             More from {projectLabel}
           </h2>
           <FilmGrid films={sameProject} productNames={PRODUCT_NAMES} />
         </section>
       )}
       <section aria-labelledby="more-films" className={`${CONTAINER} py-10 pb-20 border-t border-white/[0.07]`}>
-        <h2 id="more-films" className="text-2xl md:text-3xl font-extrabold tracking-tight mb-6">
+        <h2 id="more-films" className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
           More project films
         </h2>
         <FilmGrid films={others} productNames={PRODUCT_NAMES} />

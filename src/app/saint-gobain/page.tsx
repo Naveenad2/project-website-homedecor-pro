@@ -9,7 +9,7 @@ import {
 import {
   ArrowUpRight, Plus, X, ChevronLeft, ChevronRight,
   Eye, ArrowLeft, MapPin, Phone, Mail, Shield, Layers,
-  Droplets, Sun, Award, Cpu, Film, LayoutGrid,
+  Droplets, Sun, Award, Cpu,
 } from "lucide-react";
 import Link from "next/link";
 import { LD_ID, SITE, waLink } from "@/lib/site";
@@ -69,20 +69,20 @@ const SCHEMA = {
   "@graph": [
     {
       "@type": "WebPage",
-      "@id": "https://precisehomes.in/saint-gobain#webpage",
-      url: "https://precisehomes.in/saint-gobain",
+      "@id": "https://www.precisehomes.in/saint-gobain#webpage",
+      url: "https://www.precisehomes.in/saint-gobain",
       name: "Saint-Gobain Glass & uPVC Windows in Kochi — Precise Homes",
       isPartOf: { "@id": LD_ID.website },
       about: { "@id": LD_ID.business },
-      breadcrumb: { "@id": "https://precisehomes.in/saint-gobain#breadcrumb" },
+      breadcrumb: { "@id": "https://www.precisehomes.in/saint-gobain#breadcrumb" },
       inLanguage: "en-IN",
     },
     {
       "@type": "BreadcrumbList",
-      "@id": "https://precisehomes.in/saint-gobain#breadcrumb",
+      "@id": "https://www.precisehomes.in/saint-gobain#breadcrumb",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://precisehomes.in/" },
-        { "@type": "ListItem", position: 2, name: "Saint-Gobain Glass & uPVC Windows", item: "https://precisehomes.in/saint-gobain" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.precisehomes.in/" },
+        { "@type": "ListItem", position: 2, name: "Saint-Gobain Glass & uPVC Windows", item: "https://www.precisehomes.in/saint-gobain" },
       ],
     },
     {
@@ -114,15 +114,6 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
   return <span ref={ref}>{display}{suffix}</span>;
 }
 
-function Perforations() {
-  return (
-    <div className="flex gap-[10px] px-2 bg-[#080d14] py-[6px] overflow-hidden w-full">
-      {Array.from({ length: 80 }).map((_, i) => (
-        <div key={i} className="shrink-0 w-5 h-[14px] rounded-[2px] bg-white/[0.06] border border-white/[0.08]" />
-      ))}
-    </div>
-  );
-}
 
 function GalleryCard({ item, index, onOpen }: { item: GalleryItem; index: number; onOpen: (i: GalleryItem) => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -381,7 +372,6 @@ function FeatureCard({ Icon, title, desc, i }: Feature & { i: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SaintGobainPage() {
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "film">("grid");
   const sectionRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const heroInView = useInView(heroRef, { once: true });
@@ -574,71 +564,23 @@ export default function SaintGobainPage() {
               </h2>
             </div>
 
-            {/* View toggle */}
-            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1" role="group" aria-label="View mode">
-              {([
-                { mode: "grid" as const, Icon: LayoutGrid, label: "Grid view" },
-                { mode: "film" as const, Icon: Film,       label: "Film view" },
-              ]).map(({ mode, Icon, label }) => (
-                <button key={mode} onClick={() => setViewMode(mode)}
-                  aria-pressed={viewMode === mode} aria-label={label}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === mode ? "bg-[#02589F] shadow-[0_0_12px_rgba(2,88,159,0.4)]" : "hover:bg-white/10"}`}>
-                  <Icon className={`w-3.5 h-3.5 ${viewMode === mode ? "text-white" : "text-white/40"}`} />
-                </button>
-              ))}
-            </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            {viewMode === "grid" ? (
-              <motion.div key="grid"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.35 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
-                style={{ gridAutoRows: "280px", gridAutoFlow: "dense" }}
-                role="list" aria-label="Saint Gobain glass cladding gallery">
-                {GALLERY.map((item, idx) => (
-                  <GalleryCard key={item.id} item={item} index={idx} onOpen={openLightbox} />
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div key="film"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.35 }}
-                className="relative overflow-hidden rounded-none border-y border-white/10">
-                <Perforations />
-                <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#03070b] to-transparent z-10 pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#03070b] to-transparent z-10 pointer-events-none" />
-                <div className="flex gap-3 overflow-x-auto py-3 px-6 cursor-grab" style={{ scrollbarWidth: "none" }}>
-                  {GALLERY.map((item, idx) => (
-                    <motion.div key={item.id}
-                      initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.6, delay: idx * 0.025, ease: EASE }}
-                      className="relative shrink-0 h-[320px] w-[220px] overflow-hidden group cursor-pointer"
-                      onClick={() => openLightbox(item)} role="button" aria-label={`View ${item.title}`}>
-                      <img src={item.src} alt={item.alt} loading="lazy" decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#03070b]/80 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <p className="text-[#60b4ff] text-[7px] font-bold uppercase tracking-[0.4em]">{item.tag}</p>
-                        <p className="text-white font-bold text-sm leading-tight">{item.title}</p>
-                      </div>
-                      <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/50 border border-white/10 flex items-center justify-center">
-                        <span className="text-white/40 text-[8px] font-bold">{String(idx + 1).padStart(2, "0")}</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                <Perforations />
-                <p className="text-center text-white/20 text-[9px] uppercase tracking-[0.4em] font-bold py-2">← Drag to Explore →</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
+              style={{ gridAutoRows: "280px", gridAutoFlow: "dense" }}
+              role="list" aria-label="Saint Gobain glass cladding gallery">
+              {GALLERY.map((item, idx) => (
+                <GalleryCard key={item.id} item={item} index={idx} onOpen={openLightbox} />
+              ))}
+            </motion.div>
         </section>
 
         {/* ── SEO text ─────────────────────────────────────────────────── */}
         <div className="mb-24 pt-8 border-t border-white/5">
-          <p className="text-white/15 text-[10px] leading-[1.9] max-w-4xl font-medium">
+          <p className="text-white/40 text-[12px] leading-[1.9] max-w-4xl font-medium">
             Precise Homes is an authorized dealer for <em>Saint-Gobain architectural glass and UPVC window systems</em> in Ernakulam, Kochi,
             Thrissur, and across Kerala. Our installations include UPVC windows, structural glazing, toughened glass partitions, shower enclosures,
             and custom mirrors. Saint-Gobain glass delivers acoustic insulation, Low-E thermal efficiency, and high-impact safety for both residential and

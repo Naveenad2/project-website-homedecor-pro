@@ -34,7 +34,7 @@ function CatalogueCard({ c, onPreview }: { c: Catalogue; onPreview: () => void }
           </span>
         </span>
         <span className="absolute left-4 top-4 rounded-full bg-black/50 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white">{c.kind}</span>
-        <span className="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#03070b] opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100">
+        <span className="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#03070b] opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 pointer-coarse:opacity-100 pointer-coarse:translate-y-0">
           <BookOpen className="w-3.5 h-3.5" /> Preview
         </span>
       </button>
@@ -49,21 +49,13 @@ function CatalogueCard({ c, onPreview }: { c: Catalogue; onPreview: () => void }
           {c.pages} pages · PDF {formatBytes(c.bytes)}
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onPreview}
-            aria-label={`Preview ${c.title}`}
-            className="flex-1 min-w-0 h-10 inline-flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-white hover:bg-white/15 transition-colors"
-          >
-            <BookOpen className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">Preview</span>
-          </button>
           <a
             href={a.pdf}
             download
             aria-label={`Download ${c.title} PDF (${formatBytes(c.bytes)})`}
-            className="w-10 h-10 shrink-0 rounded-full border border-white/15 bg-white/[0.06] flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+            className="flex-1 min-w-0 h-10 inline-flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-white hover:bg-white/15 transition-colors"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 shrink-0" /> PDF
           </a>
           <a
             href={waLink(`Hi Precise Homes! Please send me the "${c.title}" brochure and more details.`)}
@@ -202,14 +194,27 @@ function CatalogueViewer({ c, onClose }: { c: Catalogue; onClose: () => void }) 
   );
 }
 
-export default function CatalogueLibrary({ catalogues }: { catalogues: Catalogue[] }) {
+export default function CatalogueLibrary({ catalogues, layout = "grid" }: { catalogues: Catalogue[]; layout?: "grid" | "rail" }) {
   const [active, setActive] = useState<Catalogue | null>(null);
   const close = useCallback(() => setActive(null), []);
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 md:gap-x-6">
+      <div
+        className={
+          layout === "rail"
+            ? "-mx-5 px-5 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-5 no-scrollbar"
+            : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 md:gap-x-6"
+        }
+      >
         {catalogues.map((c, i) => (
-          <motion.div key={c.slug} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.7, delay: (i % 5) * 0.06, ease: EASE }}>
+          <motion.div
+            key={c.slug}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, delay: (i % 5) * 0.06, ease: EASE }}
+            className={layout === "rail" ? "snap-start shrink-0 w-[58vw] sm:w-auto" : undefined}
+          >
             <CatalogueCard c={c} onPreview={() => setActive(c)} />
           </motion.div>
         ))}

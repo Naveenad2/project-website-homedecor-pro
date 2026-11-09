@@ -235,6 +235,8 @@ export const filmMedia = (slug: string) => ({
   poster: `/media/posters/${slug}.webp`,
   start: `/media/posters/${slug}-start.webp`,
   og: `/media/og/${slug}.jpg`,
+  /** 1920×1080 desktop hero background (hero stories only). */
+  heroBg: `/media/hero/${slug}.webp`,
 });
 
 export const getFilm = (slug: string) => FILMS.find((f) => f.slug === slug);

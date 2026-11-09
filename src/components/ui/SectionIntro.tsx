@@ -25,9 +25,9 @@ export default function SectionIntro({
           <span className="h-[2px] w-8 bg-[#D72731]" />
           <span className="text-[#ff6b72] text-[10px] font-bold uppercase tracking-[0.35em]">{kicker}</span>
         </div>
-        <Heading id={id} className="mt-6 text-[clamp(2.1rem,5.2vw,4.3rem)] font-extrabold leading-[0.96] tracking-tighter text-white">
+        <Heading id={id} className="mt-5 text-[clamp(1.9rem,4.2vw,3.4rem)] font-bold leading-[1] tracking-tighter text-white">
           {title}
-          {accent && <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] to-[#9ad0ff]">{accent}</span>}
+          {accent && <span className="block text-[#02589F] brightness-[1.35] saturate-[1.6]">{accent}</span>}
         </Heading>
       </div>
       <div className="lg:col-span-5">

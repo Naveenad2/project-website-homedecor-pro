@@ -55,9 +55,9 @@ export default function CataloguesPage() {
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-8">
             <p className="text-[#ff6b72] text-[10px] font-bold uppercase tracking-[0.35em]">Brochure Library</p>
-            <h1 className="mt-5 text-[clamp(2.3rem,6vw,5rem)] font-extrabold leading-[0.95] tracking-tighter">
+            <h1 className="mt-5 text-[clamp(2.3rem,6vw,5rem)] font-bold leading-[0.95] tracking-tighter">
               Brochures &amp;
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#3d8fd6] to-[#9ad0ff]">catalogues.</span>
+              <span className="block text-[#02589F] brightness-[1.35] saturate-[1.6]">catalogues.</span>
             </h1>
           </div>
           <div className="lg:col-span-4">
@@ -77,7 +77,7 @@ export default function CataloguesPage() {
 
       <section aria-labelledby="by-product" className={`${CONTAINER} pb-24`}>
         <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-10">
-          <h2 id="by-product" className="text-xl md:text-2xl font-extrabold tracking-tight">Find a brochure by product</h2>
+          <h2 id="by-product" className="text-xl md:text-2xl font-bold tracking-tight">Find a brochure by product</h2>
           <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
             {CATALOGUES.flatMap((c) => c.products)
               .filter((p, i, a) => a.indexOf(p) === i)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Syne } from "next/font/google";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
@@ -39,7 +39,7 @@ const NAV_LINKS: NavLink[] = [
   { name: "CATALOGUES", href: "/catalogues" },
   {
     name: "BRANDS",
-    href: "/#brands",
+    href: "/saint-gobain",
     dropdown: [
       { label: "Saint Gobain", href: "/saint-gobain", desc: "Premium Glass Solutions" },
       { label: "Fundermax", href: "/fundermax", desc: "HPL Facade Cladding" },
@@ -160,6 +160,17 @@ function HamburgerIcon({ open }: { open: boolean }) {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // The full-screen menu is for phones/tablets; if a tablet rotates into the desktop
+  // layout (where its toggle is hidden) while the menu is open, close it.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { scrollY } = useScroll();
 
@@ -201,16 +212,16 @@ export default function Navbar() {
           className="absolute inset-0 bg-gradient-to-b from-[#03070b]/80 via-[#03070b]/30 to-transparent pointer-events-none"
         />
 
-        {/* ------- TOP INFO BAR (desktop only, hides on scroll) ------- */}
+        {/* ------- TOP INFO BAR (desktop only — too cramped on tablets — hides on scroll) ------- */}
         <motion.div
           animate={{
             height: scrolled ? 0 : 38,
             opacity: scrolled ? 0 : 1,
           }}
           transition={{ duration: 0.45, ease: EASE }}
-          className="relative z-10 overflow-hidden border-b border-white/[0.06] hidden md:block"
+          className="relative z-10 overflow-hidden border-b border-white/[0.06] hidden lg:block"
         >
-          <div className="max-w-[1920px] mx-auto px-8 md:px-12 lg:px-24 h-full flex items-center justify-between">
+          <div className="max-w-[1920px] mx-auto px-8 md:px-12 lg:px-16 xl:px-24 h-full flex items-center justify-between">
             {/* Location */}
             <div className="flex items-center gap-2.5">
               <MapPin className="w-3 h-3 text-[#D72731] shrink-0" />
@@ -259,10 +270,10 @@ export default function Navbar() {
 
         {/* ------- MAIN NAV BAR ------- */}
         <div className={`relative z-10 w-full transition-all duration-500 ${scrolled ? "py-3 md:py-4" : "py-5 md:py-6"}`}>
-          <div className="max-w-[1920px] mx-auto px-5 sm:px-8 md:px-12 lg:px-24 flex items-center justify-between">
+          <div className="max-w-[1920px] mx-auto px-5 sm:px-8 md:px-12 lg:px-16 xl:px-24 flex items-center justify-between gap-6">
 
             {/* Logo */}
-            <Link href="/" aria-label="Precise Homes — home" className="relative z-50 flex items-center transition-transform duration-300 hover:scale-[1.02]">
+            <Link href="/" aria-label="Precise Homes — home" className="relative z-50 flex shrink-0 items-center transition-transform duration-300 hover:scale-[1.02]">
               <img
                 src="/logo-nav.webp"
                 alt="Precise Homes"
@@ -273,7 +284,7 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop nav links */}
-            <nav className="hidden lg:flex items-center gap-10 xl:gap-12">
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-12">
               {NAV_LINKS.map((link) => (
                 <div
                   key={link.name}
@@ -309,7 +320,7 @@ export default function Navbar() {
             </nav>
 
             {/* Right actions */}
-            <div className="flex items-center gap-3 md:gap-4 relative z-50">
+            <div className="flex shrink-0 items-center gap-3 md:gap-4 relative z-50">
               {/* CTA — Contact Us opens WhatsApp chat with the team */}
               <motion.a
                 href={waLink(CONTACT_MESSAGE)}
@@ -320,7 +331,7 @@ export default function Navbar() {
                 aria-label={`Contact us on WhatsApp ${SITE.phoneDisplay}`}
                 className="hidden md:flex items-center gap-3 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] hover:border-white/25 pl-5 pr-1.5 py-1.5 rounded-full backdrop-blur-md transition-all duration-400 group"
               >
-                <span className="text-white text-[9px] xl:text-[10px] font-bold uppercase tracking-[0.25em]">
+                <span className="whitespace-nowrap text-white text-[9px] xl:text-[10px] font-bold uppercase tracking-[0.25em]">
                   Contact Us
                 </span>
                 <div className="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-[0_0_16px_rgba(37,211,102,0.45)]">
@@ -333,7 +344,8 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 whileTap={{ scale: 0.92 }}
                 aria-label="Toggle menu"
-                className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.12] hover:bg-white/10 hover:border-white/25 flex items-center justify-center transition-all duration-300 focus:outline-none"
+                aria-expanded={menuOpen}
+                className="lg:hidden w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.12] hover:bg-white/10 hover:border-white/25 flex items-center justify-center transition-all duration-300 focus:outline-none"
               >
                 <HamburgerIcon open={menuOpen} />
               </motion.button>

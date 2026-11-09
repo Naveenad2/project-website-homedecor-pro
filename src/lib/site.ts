@@ -7,7 +7,7 @@
 export const SITE = {
   name: "Precise Homes",
   alternateNames: ["Precise Home Care", "Precise Homes Kochi", "My Home by Saint-Gobain Kochi"],
-  url: "https://precisehomes.in",
+  url: "https://www.precisehomes.in", // live primary domain (Vercel redirects the bare domain here)
   foundingYear: 2016,
   phone: "+919895105012",
   phoneDisplay: "+91 98951 05012",
