@@ -7,12 +7,16 @@ import PreviewMedia from "@/components/media/PreviewMedia";
 import FilmGrid from "@/components/media/FilmGrid";
 import CatalogueLibrary from "@/components/sections/CatalogueLibrary";
 import { ProductGrid } from "@/components/sections/ProductShowcase";
+import ProductTypeCards from "@/components/sections/ProductTypeCards";
 import FAQ from "@/components/sections/FAQ";
+import { PostGrid } from "@/components/blog/PostCard";
 import JsonLd from "@/components/ui/JsonLd";
 import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
 import { PRODUCTS, categoryLabel, getProduct, productImage, productOgImage, toProductCard } from "@/data/products";
 import { filmMedia, filmsForProduct } from "@/data/films";
 import { cataloguesForProduct } from "@/data/catalogues";
+import { typesForProduct } from "@/data/product-types";
+import { getPostsForProduct } from "@/lib/blog";
 import { buildMetadata } from "@/lib/seo";
 import { LD_ID, SITE, absoluteUrl, telLink, waLink } from "@/lib/site";
 
@@ -47,6 +51,8 @@ export default async function ProductPage({ params }: Props) {
 
   const films = filmsForProduct(p.slug);
   const catalogues = cataloguesForProduct(p.slug);
+  const types = typesForProduct(p.slug);
+  const posts = getPostsForProduct(p.slug, 3);
   const related = PRODUCTS.filter((x) => x.slug !== p.slug && x.category === p.category).slice(0, 4);
   const more = related.length < 4 ? PRODUCTS.filter((x) => x.slug !== p.slug && x.category !== p.category && x.featured).slice(0, 4 - related.length) : [];
   const preview = p.previewFilm ? filmMedia(p.previewFilm).preview : films[0] ? filmMedia(films[0].slug).preview : undefined;
@@ -157,6 +163,21 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </section>
 
+      {/* ── Types (each has its own page) ─────────────────────────────── */}
+      {types.length > 0 && (
+        <section aria-labelledby="types-title" className={`${CONTAINER} py-12 md:py-16 border-t border-white/[0.07]`}>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
+            <h2 id="types-title" className="text-2xl md:text-4xl font-bold tracking-tight">
+              Choose your type
+            </h2>
+            <p className="max-w-xl text-white/45 text-[14px] leading-relaxed">
+              Each option has its own strengths — compare them, then see them working at our Padivattom experience centre.
+            </p>
+          </div>
+          <ProductTypeCards types={types} />
+        </section>
+      )}
+
       {/* ── Specs + applications ──────────────────────────────────────── */}
       <section aria-label="Specifications and applications" className={`${CONTAINER} py-12 md:py-16 border-t border-white/[0.07]`}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
@@ -221,6 +242,21 @@ export default async function ProductPage({ params }: Props) {
       )}
 
       <FAQ faqs={p.faqs} title={`${p.name}: your questions`} kicker={`FAQ // ${p.brand}`} id="product-faq" />
+
+      {/* ── Guides ────────────────────────────────────────────────────── */}
+      {posts.length > 0 && (
+        <section aria-labelledby="guides-title" className={`${CONTAINER} pb-14 md:pb-16`}>
+          <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-3 border-t border-white/[0.08] pt-8">
+            <h2 id="guides-title" className="text-2xl md:text-4xl font-bold tracking-tight">
+              Helpful guides
+            </h2>
+            <Link href="/blog" className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/55 hover:text-white">
+              All articles →
+            </Link>
+          </div>
+          <PostGrid posts={posts} />
+        </section>
+      )}
 
       {/* ── Related ───────────────────────────────────────────────────── */}
       <section aria-labelledby="related-title" className={`${CONTAINER} pb-20 pt-4`}>

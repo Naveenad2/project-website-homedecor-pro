@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { REVIEW_DESTINATION, REVIEW_PATH } from "./src/lib/site";
 
 // NOTE: the previous version of this file never exported its config, so none of
 // these settings were applied. It is now a proper default export.
@@ -11,6 +12,14 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      // NFC card / QR code → Google review form. Temporary (307) so the destination can
+      // change later without the old one being cached by phones or search engines.
+      { source: REVIEW_PATH, destination: REVIEW_DESTINATION, permanent: false },
+      { source: "/reviews", destination: REVIEW_DESTINATION, permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

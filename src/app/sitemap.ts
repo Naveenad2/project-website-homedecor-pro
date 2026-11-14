@@ -3,6 +3,8 @@ import type { MetadataRoute } from "next";
 import { FILMS, HERO_FILMS, filmMedia, filmUploadDate } from "@/data/films";
 import { PRODUCTS, productImage } from "@/data/products";
 import { CATALOGUES, catalogueAssets } from "@/data/catalogues";
+import { PRODUCT_TYPES, productTypeHref, productTypeImage } from "@/data/product-types";
+import { getAllPosts, postHref, postIsoDate } from "@/lib/blog";
 import { SITE, absoluteUrl } from "@/lib/site";
 
 /** Next.js writes sitemap fields verbatim, so text must be XML-escaped here (e.g. "&"). */
@@ -12,6 +14,8 @@ const xml = (s: string) =>
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const lead = HERO_FILMS[0];
+  const posts = getAllPosts();
+  const postModified = (p: (typeof posts)[number]) => new Date(postIsoDate(p.updated ?? p.date));
 
   return [
     {
@@ -45,6 +49,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: p.featured ? 0.9 : 0.8,
       images: [absoluteUrl(productImage(p.slug))],
     })),
+    // Product type pages — /products/[product]/[type]
+    ...PRODUCT_TYPES.map((t) => ({
+      url: absoluteUrl(productTypeHref(t)),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+      images: [absoluteUrl(productTypeImage(t))],
+    })),
+    // Blog
+    {
+      url: absoluteUrl("/blog"),
+      lastModified: posts[0] ? postModified(posts[0]) : now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...posts.map((p) => ({
+      url: absoluteUrl(postHref(p.slug)),
+      lastModified: postModified(p),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      images: [absoluteUrl(p.cover)],
+    })),
+    { url: absoluteUrl("/contact"), lastModified: now, changeFrequency: "yearly", priority: 0.6 },
     {
       url: absoluteUrl("/films"),
       lastModified: now,

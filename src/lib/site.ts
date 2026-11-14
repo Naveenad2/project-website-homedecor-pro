@@ -25,6 +25,14 @@ export const SITE = {
   },
   geo: { lat: 10.0128, lng: 76.3089 },
   mapsUrl: "https://maps.google.com/?q=Precise+Homes+Padivattom+Kochi",
+  /**
+   * ★ GOOGLE REVIEW LINK — used by the NFC card, QR codes and the footer.
+   * https://www.precisehomes.in/review redirects to this address.
+   * Paste the link from Google Business Profile → "Ask for reviews" → copy link
+   * (it looks like https://g.page/r/XXXXXXXX/review), then redeploy.
+   * While it is empty, /review opens the Google Maps listing instead.
+   */
+  googleReviewUrl: "",
   hours: { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00", label: "Mon – Sat · 9 AM – 6 PM" },
   social: {
     instagram: "https://www.instagram.com/precisehomeautocare",
@@ -34,7 +42,15 @@ export const SITE = {
   areaServed: ["Kochi", "Ernakulam", "Kakkanad", "Edappally", "Aluva", "Thrissur", "Kollam", "Kottayam", "Alappuzha", "Thiruvananthapuram", "Kozhikode", "Kerala"],
 } as const;
 
-export const FULL_ADDRESS = `${SITE.address.street}, ${SITE.address.locality}, ${SITE.address.district}, ${SITE.address.region} ${SITE.address.postalCode}`;
+/** Short link printed on the NFC card / QR code. Keep it stable — only the destination ever changes. */
+export const REVIEW_PATH = "/review";
+const reviewUrl: string = SITE.googleReviewUrl;
+// Fallback has no "?query" on purpose: Next.js re-parses query strings in redirect destinations.
+const MAPS_LISTING = "https://www.google.com/maps/search/Precise%20Homes%20Padivattom%20Kochi";
+/** Where /review sends people: the Google review form, or the Maps listing until the link is added. */
+export const REVIEW_DESTINATION: string = reviewUrl || MAPS_LISTING;
+
+export const FULL_ADDRESS =`${SITE.address.street}, ${SITE.address.locality}, ${SITE.address.district}, ${SITE.address.region} ${SITE.address.postalCode}`;
 
 /** Brands Precise Homes supplies & installs. */
 export const BRANDS = ["Saint-Gobain", "Fundermax", "iCLAD", "Novelio", "Dimore", "Vitrum", "Forms+Surfaces", "LG Hausys", "3M"] as const;

@@ -8,6 +8,7 @@ import About from "@/components/sections/About";
 import Gallery from "@/components/sections/Gallery";
 import Catalogues from "@/components/sections/Catalogues";
 import Testimonials from "@/components/sections/Testimonials";
+import LatestPosts from "@/components/sections/LatestPosts";
 import FAQ from "@/components/sections/FAQ";
 import JsonLd from "@/components/ui/JsonLd";
 import { FILMS, HERO_FILMS, filmMedia, filmUploadDate } from "@/data/films";
@@ -78,6 +79,7 @@ export default function Home() {
       <Gallery />
       <Testimonials />
       <Catalogues />
+      <LatestPosts />
       <FAQ faqs={HOME_FAQS} />
       <Footer />
     </main>

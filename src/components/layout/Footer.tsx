@@ -7,7 +7,7 @@ import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import { MapPin, Phone, Mail, ChevronRight, Plus } from "lucide-react";
 import { SpriteIcon } from "../ui/IconSprite";
 import WhatsAppIcon from "../ui/WhatsAppIcon";
-import { SITE, telLink, waLink } from "@/lib/site";
+import { REVIEW_PATH, SITE, telLink, waLink } from "@/lib/site";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700", "800"], display: "swap" });
 const jakarta = Plus_Jakarta_Sans({
@@ -42,12 +42,14 @@ const NAV = [
   { label: "Home",         href: "/" },
   { label: "All Products", href: "/products" },
   { label: "Project Films",href: "/films" },
+  { label: "Blog & Guides",href: "/blog" },
   { label: "Catalogues",   href: "/catalogues" },
   { label: "Saint Gobain", href: "/saint-gobain" },
   { label: "Fundermax",    href: "/fundermax" },
   { label: "LG Hausys",    href: "/lg-hausys" },
   { label: "About Us",     href: "/#about" },
   { label: "FAQ",          href: "/#faq" },
+  { label: "Contact",      href: "/contact" },
 ];
 
 const PRODUCTS = [
@@ -347,6 +349,17 @@ export default function Footer() {
                 >
                   <WhatsAppIcon className="w-4 h-4" />
                   <span className="text-[12px] font-bold tracking-wide">WhatsApp {SITE.phoneDisplay}</span>
+                </a>
+
+                {/* /review redirects to the Google review form (same link as the NFC card) */}
+                <a
+                  href={REVIEW_PATH}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex w-fit items-center gap-2.5 text-white/40 text-[12.5px] font-semibold hover:text-white/75 transition-colors"
+                >
+                  <span aria-hidden="true" className="tracking-[0.12em] text-[#FBBC04]">★★★★★</span>
+                  Review us on Google
                 </a>
               </address>
             </Reveal>

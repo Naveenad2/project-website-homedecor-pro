@@ -36,6 +36,7 @@ const NAV_LINKS: NavLink[] = [
     ],
   },
   { name: "FILMS", href: "/films" },
+  { name: "BLOG", href: "/blog" },
   { name: "CATALOGUES", href: "/catalogues" },
   {
     name: "BRANDS",

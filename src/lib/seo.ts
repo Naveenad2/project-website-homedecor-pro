@@ -15,6 +15,8 @@ export function buildMetadata({
   keywords,
   type = "website",
   absoluteTitle = false,
+  rss = false,
+  article,
 }: {
   title: string;
   description: string;
@@ -24,15 +26,23 @@ export function buildMetadata({
   keywords?: string[];
   type?: "website" | "article";
   absoluteTitle?: boolean;
+  /** Advertise the blog RSS feed (<link rel="alternate" type="application/rss+xml">). */
+  rss?: boolean;
+  /** Open Graph article details for blog posts. */
+  article?: { publishedTime: string; modifiedTime?: string; section?: string; tags?: string[] };
 }): Metadata {
   const fullTitle = absoluteTitle ? title : `${title} | ${SITE.name}`;
   const images = [{ url: image, width: 1200, height: 630, alt: imageAlt ?? title }];
+  const base = { locale: "en_IN", siteName: SITE.name, url: path, title: fullTitle, description, images };
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
     keywords,
-    alternates: { canonical: path },
-    openGraph: { type, locale: "en_IN", siteName: SITE.name, url: path, title: fullTitle, description, images },
+    alternates: {
+      canonical: path,
+      ...(rss ? { types: { "application/rss+xml": [{ url: "/blog/rss.xml", title: `${SITE.name} Blog` }] } } : {}),
+    },
+    openGraph: article && type === "article" ? { ...base, type: "article", authors: [SITE.name], ...article } : { ...base, type },
     twitter: { card: "summary_large_image", title: fullTitle, description, images: [image] },
   };
 }

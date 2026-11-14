@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageShell, { Breadcrumbs, CONTAINER } from "@/components/layout/PageShell";
 import { ProductGrid } from "@/components/sections/ProductShowcase";
 import JsonLd from "@/components/ui/JsonLd";
 import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
 import { CATEGORIES, PRODUCTS, toProductCard } from "@/data/products";
+import { PRODUCT_TYPES, productTypeHref } from "@/data/product-types";
 import { buildMetadata } from "@/lib/seo";
 import { LD_ID, absoluteUrl, waLink } from "@/lib/site";
 
@@ -73,6 +75,21 @@ export default function ProductsPage() {
             </a>
           ))}
         </nav>
+        <div className="mt-7">
+          <p className="text-white/35 text-[10px] font-bold uppercase tracking-[0.24em]">Popular types</p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {PRODUCT_TYPES.map((t) => (
+              <li key={`${t.parent}/${t.slug}`}>
+                <Link
+                  href={productTypeHref(t)}
+                  className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[12.5px] font-semibold text-white/65 hover:text-white hover:border-white/30 transition-colors"
+                >
+                  {t.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {groups.map((g) => (
