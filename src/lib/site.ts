@@ -32,7 +32,7 @@ export const SITE = {
    * (it looks like https://g.page/r/XXXXXXXX/review), then redeploy.
    * While it is empty, /review opens the Google Maps listing instead.
    */
-  googleReviewUrl: "",
+  googleReviewUrl: "https://g.page/r/CT_tu4o3b4LoEBM/review",
   hours: { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00", label: "Mon – Sat · 9 AM – 6 PM" },
   social: {
     instagram: "https://www.instagram.com/precisehomeautocare",
