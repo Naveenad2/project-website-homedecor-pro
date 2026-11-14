@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  // The blog checks at build time that its images exist in /public. That file access makes the
+  // build tracer copy all of /public (~400 MB of films and brochures) into every server function,
+  // which breaks Vercel's 250 MB function limit. Public files are always served by the CDN, so
+  // functions never need them.
+  outputFileTracingExcludes: {
+    "/*": ["public/**/*"],
+  },
   async redirects() {
     return [
       // NFC card / QR code → Google review form. Temporary (307) so the destination can
